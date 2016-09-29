@@ -16,6 +16,8 @@ voc_dict = {}
 posting_file = []
 
 for filename in glob.glob('./latimes/la*'):
+    doc_id = filename[2:]
+
     with open(filename, 'r') as f:
         for line in f:
 
@@ -44,29 +46,28 @@ for filename in glob.glob('./latimes/la*'):
                     voc_dict[word] = [1, index_insertion]
 
                     #we add to the right position
-                    posting_file.insert(index_insertion, ([filename, 1]))
+                    posting_file.insert(index_insertion, (word,[filename, 1]))
 
                 #the word already exists (there is a line in posting_file)
                 else:
-                    index_word = voc_dict[word][1]
 
                     #we add to the right place
                     #TODO dichotomy !
 
                     index_insertion = 0
                     insert = False
-                    for i in range(len(posting_file[index_word][1])):
+                    for i in range(len(posting_file[word][1])):
                         index_insertion = i
 
                         #if the word is already present in this document, we increment
-                        if word == posting_file[index_word][1][i]:
-                            posting_file[index_word][1][i][1] += 1
+                        if filename == posting_file[word][1][i]:
+                            posting_file[word][1][i][1] += 1
                             break
-                        elif word > posting_file[index_word][1][i]:
+                        elif filename > posting_file[word][1][i]:
                             insert = True
                             break
 
                     if insert:
-                        posting_file[index_word][1].insert(index_insertion, ([filename, 1]))
-                
+                        posting_file[word][1].insert(index_insertion, [filename, 1])
+
 
