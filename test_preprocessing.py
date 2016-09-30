@@ -16,3 +16,10 @@ def test_stemming():
     assert(preprocessing.stem("tokenized") == "token")
     assert(preprocessing.stem("stemmer") == "stem")
     assert(preprocessing.stem("algorithmic") == "algorithm")
+
+def test_removeStopWords():
+    tokensToFilter = ["In", "this", "text", "stop", "words", "have", "to", "be", "removed", "In", "each", "phrase", "occurances", "of", "words", "such", "as", "this", "that", "so", "and", "and", "of", "will", "be", "removed"]
+    filteredTokens = ["In", "text", "stop", "words", "removed", "In", "phrase", "occurances", "words", "removed"]
+    tokensToTest = preprocessing.removeStopWords(tokensToFilter)
+    for a, b in zip(filteredTokens, tokensToTest):
+        assert(a == b)
