@@ -1,3 +1,5 @@
+import math
+
 # For one posting list (one term), calculate score based on the number of occurence of the term in each document and total number of terms per documents
 def calculatePostingListScore(postingList, docsTokenCounts):
 	newPostingList = []
@@ -12,7 +14,13 @@ def calculatePostingListScore(postingList, docsTokenCounts):
 		# Calculate term-frequency
 		tf = post[1] / tokenCount
 
+		# Calculate idf
+		idf = math.log(len(docsTokenCounts)/len(postingList))
+
+		# calculate score
+		score = tf * idf
+
 		# Save it to new posting list
-		newPostingList += [[docName, tf]]
+		newPostingList += [[docName, score]]
 
 	return newPostingList
