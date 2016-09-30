@@ -16,17 +16,3 @@ def calculatePostingListScore(postingList, docsTokenCounts):
 		newPostingList += [[docName, tf]]
 
 	return newPostingList
-
-
-def testCalculatePostingListScore():
-	postingList = [["a.doc", 3], ["b.doc", 2], ["c.doc", 1], ["d.doc", 7]]
-
-	docsTokenCounts = {"a.doc": 20, "b.doc": 20, "c.doc": 20, "d.doc": 20}
-
-	print('Posting List before calulation : ' + repr(postingList))
-
-	postingList = calculatePostingListScore(postingList, docsTokenCounts)
-
-	print('Posting List before calulation : ' + repr(postingList))
-
-testCalculatePostingListScore()
