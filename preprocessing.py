@@ -18,12 +18,7 @@ def stem(word):
     stemmer = PorterStemmer()
     return stemmer.stem(word)
 
-def isConsonant(letter):
-    return not letter in "aeiouy"
-
-def isVowel(letter):
-    return letter in "aeiouy"
-
+# Removes stop words from a list of tokens
 def removeStopWords(tokens):
     filtered_words = [word for word in tokens if word not in stopwords.words('english')]
     return filtered_words
