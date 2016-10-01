@@ -1,68 +1,46 @@
+import os
 import glob
-import preprocessing
 
-# //////////////////////////////////////////////////////////////////////////////
+from preprocessing import tokenize
+from sortedcontainers import SortedDict
+
 
 def run():
-
     voc_dict = {}
 
-    #the schema of the posting_file is : (word,[postingList])
-    posting_file = []
+    # the schema of the posting_file is : word:[postingList]
+    posting_file = SortedDict()
 
-    for filename in glob.glob('./latimes/la*'):
-        doc_id = filename[2:]
+    for filepath in glob.glob('./latimes/la*'):
+        doc_id = os.path.basename(filepath)[2:]
 
-        with open(filename, 'r') as f:
-            for line in f:
+        with open(filepath, 'r') as f:
+            file_content = f.read()
 
-                # tokenization
-                tokens = tokenize(line)
+            # tokenization
+            tokens = tokenize(file_content)
 
-                # stemming
+            # stemming
 
-                # stop words removal
+            # stop words removal
 
-                for word in tokens:
+            for word in tokens:
 
-                    #if the word does not exist
-                    if word not in voc_dict:
-                        #we must find the right place to put our new line corresponding to a word
+                # if the word is not in the index already
+                if word not in posting_file:
 
-                        index_insertion = 0
+                    posting_file[word] = SortedDict({doc_id: 1})
 
-                        #TODO: we can make a dichotomy for better perf
 
-                        for i in range(len(posting_file)):
-                            key_word = posting_file[0][0]
-                            index_insertion = i
-                            if word > key_word:
-                                #we leave the loop
-                                break
-
-                        voc_dict[word] = [1, index_insertion]
-
-                        #we add to the right position
-                        posting_file.insert(index_insertion, (word,[filename, 1]))
-
-                    #the word already exists (there is a line in posting_file)
+                # the word already exists (there is a line in posting_file)
+                else:
+                    word_pl = posting_file[word]
+                    if doc_id in posting_file[word]:
+                        word_pl[doc_id] += 1
                     else:
+                        word_pl[doc_id] = 0
 
-                        #we add to the right place
-                        #TODO dichotomy !
+    voc_dict = posting_file
 
-                        index_insertion = 0
-                        insert = False
-                        for i in range(len(posting_file[word][1])):
-                            index_insertion = i
 
-                            #if the word is already present in this document, we increment
-                            if filename == posting_file[word][1][i]:
-                                posting_file[word][1][i][1] += 1
-                                break
-                            elif filename > posting_file[word][1][i]:
-                                insert = True
-                                break
-
-                        if insert:
-                            posting_file[word][1].insert(index_insertion, [filename, 1])
+run()
