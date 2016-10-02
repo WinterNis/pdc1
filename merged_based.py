@@ -1,7 +1,6 @@
 import os
 import glob
 
-from sortedcontainers import SortedDict
 
 pl_files_directory = './pl'  # default directory for the temp files storage
 pl_files_count = 0  # count for temp file identification
@@ -20,7 +19,6 @@ def flush_pl_to_disk(posting_file, path=pl_files_directory):
                 f.write(' ' + doc_id + ' ' + str(score))
             f.write('\n')
     pl_files_count += 1
-    posting_file = SortedDict()
 
 
 def merge_pl(voc_dict, temp_path=pl_files_directory, output_path=pl_files_directory):
@@ -82,6 +80,5 @@ def merge_pl(voc_dict, temp_path=pl_files_directory, output_path=pl_files_direct
         for l in pl:
             merged_file.write(str(l[0]) + ' ' + str(l[1]) + ' ')
         merged_file.write('\n')
-
 
     merged_file.close()

@@ -1,17 +1,24 @@
 import os
 import glob
+import gc
+
+import psutil
+from sortedcontainers import SortedDict
 
 from preprocessing import tokenize
-from sortedcontainers import SortedDict
+from merged_based import flush_pl_to_disk, merge_pl
 
 
 def run():
-    voc_dict = {}
+    py_process = psutil.Process(os.getpid())
+
+    voc_dict = {}  # contains the final vocabulary structure
 
     # the schema of the posting_file is : word:[postingList]
     posting_file = SortedDict()
 
     for filepath in glob.glob('./latimes/la*'):
+
         doc_id = os.path.basename(filepath)[2:]
 
         with open(filepath, 'r') as f:
@@ -39,7 +46,14 @@ def run():
                     else:
                         word_pl[doc_id] = 0
 
-    voc_dict = posting_file
+        memory_use = py_process.memory_info()[0]/2.**30  # memory use in GB
+        print(memory_use)
+        if memory_use > 0.5:
+            flush_pl_to_disk(posting_file)
+            posting_file = SortedDict()
+            gc.collect()  # Force the garbage collection of the object
+
+    merge_pl(voc_dict)
 
 
 run()
