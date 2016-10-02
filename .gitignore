@@ -94,4 +94,4 @@ latimes/
 
 #pl files
 pl/*
-tests/merged_based/pl/*
+tests/merge_based/pl/*
