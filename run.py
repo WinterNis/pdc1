@@ -12,6 +12,7 @@ from merged_based import flush_pl_to_disk, merge_pl
 def run():
     py_process = psutil.Process(os.getpid())
 
+    docs_token_counts = {}
     voc_dict = {}  # contains the final vocabulary structure
 
     # the schema of the posting_file is : word:[postingList]
@@ -30,6 +31,8 @@ def run():
             # stemming
 
             # stop words removal
+
+            docs_token_counts[doc_id] = len(tokens)
 
             for word in tokens:
 
