@@ -50,7 +50,6 @@ def run():
                         word_pl[doc_id] = 0
 
         memory_use = py_process.memory_info()[0]/2.**30  # memory use in GB
-        print(memory_use)
         if memory_use > 0.5:
             flush_pl_to_disk(posting_file)
             posting_file = SortedDict()
