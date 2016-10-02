@@ -91,3 +91,7 @@ ENV/
 # LaTime articles
 latimes/*
 latimes/
+
+#pl files
+pl/*
+tests/merged_based/pl/*

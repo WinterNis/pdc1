@@ -31,7 +31,6 @@ def run():
 
                     posting_file[word] = SortedDict({doc_id: 1})
 
-
                 # the word already exists (there is a line in posting_file)
                 else:
                     word_pl = posting_file[word]
