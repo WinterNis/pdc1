@@ -14,17 +14,18 @@ class Vocabulary:
     def __init__(self, doc_dir, score_function, pl_dir='./pl', temp_dir='./pl', max_memory_use=0.5):
 
         self.doc_dir = doc_dir
-        self.pl_files_directory = pl_dir  # default directory for the temp files storage
+        self.pl_dir = pl_dir  # default directory for the temp files storage
         self.temp_dir = temp_dir
         self.pl_files_count = 0  # count for temp file identification
         self.merged_file = None
         self.mem_map_file = None
+        self.score_function = score_function
         self.docs_token_counts = {}  # contains the number of tokens per doc
         self.voc_dict = {}  # contains the final vocabulary structure
         self.max_memory_use = max_memory_use
 
-        if not os.path.exists(self.pl_files_directory):  # create the pl containing folder
-            os.makedirs(self.pl_files_directory)
+        if not os.path.exists(self.pl_dir):  # create the pl containing folder
+            os.makedirs(self.pl_dir)
         if not os.path.exists(self.temp_dir):  # create the temp pl containing folder
             os.makedirs(self.temp_dir)
 
@@ -99,7 +100,7 @@ class Vocabulary:
 
     def merge_pl(self):
         """Merge the temporary pl files to one file"""
-        filename = os.path.join(self.pl_files_directory, 'PL_MERGED')
+        filename = os.path.join(self.pl_dir, 'PL_MERGED')
         merged_file = open(filename, 'w+')
 
         file_list = []  # contains the file desriptors and the current line splitted
@@ -155,7 +156,9 @@ class Vocabulary:
             self.voc_dict[min_word] = [len(pl), merged_file.tell()]
             # Write the pl to the merged file
             for l in pl:
-                merged_file.write(str(l[0]) + ' ' + str(l[1]) + ' ')
+                score = self.score_function(
+                    l[1], self.docs_token_counts.get(l[0]), len(pl), len(self.docs_token_counts))
+                merged_file.write(str(l[0]) + ' ' + str(score) + ' ')
             merged_file.write('\n')
 
         merged_file.close()
