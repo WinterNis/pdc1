@@ -11,16 +11,23 @@ def calculatePostingListScore(postingList, docsTokenCounts):
 		# Find Total count based on document name
 		tokenCount = docsTokenCounts[docName]
 
-		# Calculate term-frequency
-		tf = post[1] / tokenCount
-
-		# Calculate idf
-		idf = math.log(len(docsTokenCounts)/len(postingList))
-
-		# calculate score
-		score = tf * idf
+		score = calculateDocumentScore(post[1], tokenCount, len(postingList), len(docsTokenCounts))
 
 		# Save it to new posting list
 		newPostingList += [[docName, score]]
 
 	return newPostingList
+
+
+def calculateDocumentScore(termDocumentCount, docTokenCounts, numberOfDocsContainingTerm, totalNumberOfDocs):
+	# Calculate term-frequency
+	tf = termDocumentCount / docTokenCounts
+
+	# Calculate idf
+	idf = math.log(totalNumberOfDocs/numberOfDocsContainingTerm)
+
+	# Calculate score
+	score = tf * idf
+
+	return score
+	
