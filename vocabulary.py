@@ -171,6 +171,8 @@ class Vocabulary:
 
         merged_file.close()
 
+        self.write_voc_to_disk()
+
     def access_pl(self, word):
         """Return the posting list of a word"""
         offset = self.voc_dict[word][1]
@@ -180,3 +182,17 @@ class Vocabulary:
         pl = self.mem_map_file.readline().decode().split()
         score_sorted_pl = SortedDict(zip(pl[::2], pl[1::2]))
         return [id_sorted_pl, score_sorted_pl]
+
+    def write_voc_to_disk(self):
+        """Store the voc structure into a file, so it can be retrieved later"""
+        filename = os.path.join(self.pl_dir, 'voc_index')
+        with open(filename, 'w+') as f:
+            for key, value in self.voc_dict.items():
+                f.write(key + ' ' + str(value[0]) + str(value[1]) + '\n')
+
+    def load_voc_from_disk(self):
+        filename = os.path.join(self.pl_dir, 'voc_index')
+        with open(filename, 'r') as f:
+            for line in f:
+                l = line.split()
+                self.voc_dict[l[0]] = [l[1], l[2]]
