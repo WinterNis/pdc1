@@ -153,12 +153,19 @@ class Vocabulary:
                     else:
                         d_index += 1
 
-            self.voc_dict[min_word] = [len(pl), merged_file.tell()]
+            self.voc_dict[min_word] = [len(pl), merged_file.tell()] # store the offset in the file
+
             # Write the pl to the merged file
+            score_sorted_pl = SortedDict()
             for l in pl:
                 score = self.score_function(
                     l[1], self.docs_token_counts.get(l[0]), len(pl), len(self.docs_token_counts))
+                score_sorted_pl[str(score)] = l[0] # add element to the score sorted pl
                 merged_file.write(str(l[0]) + ' ' + str(score) + ' ')
+            merged_file.write('\n')
+
+            for l in score_sorted_pl.items():
+                merged_file.write(str(l[0]) + ' ' + str(l[1]) + ' ')
             merged_file.write('\n')
 
         merged_file.close()
@@ -168,4 +175,7 @@ class Vocabulary:
         offset = self.voc_dict[word][1]
         self.mem_map_file.seek(offset)
         pl = self.mem_map_file.readline().decode().split()
-        return SortedDict(zip(pl[::2], list(map(int,pl[1::2]))))
+        id_sorted_pl = SortedDict(zip(pl[::2], list(map(int,pl[1::2]))))
+        pl = self.mem_map_file.readline().decode().split()
+        score_sorted_pl = SortedDict(zip(pl[::2], list(map(int,pl[1::2]))))
+        return [id_sorted_pl, score_sorted_pl]

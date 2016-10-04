@@ -12,7 +12,7 @@ def basic_and_query(voc, searchTermsList):
 
     for searchTerm in searchTermsList:
         # getPLForTerm() is an interface function that return the posting list of a term
-        searchTermPL = voc.access_pl(searchTerm)
+        searchTermPL = voc.access_pl(searchTerm)[0]
 
 
         PLList.append(searchTermPL) # we store the PL associated to the searchTerm
