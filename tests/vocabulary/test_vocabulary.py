@@ -1,4 +1,5 @@
 import os
+import sys
 
 from vocabulary import Vocabulary
 
@@ -10,7 +11,11 @@ def simple_score(count, *args):
 def test_merge_based():
     pl_dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'pl')
 
-    voc = Vocabulary(None, simple_score, pl_dir=pl_dir_path, temp_dir=pl_dir_path)
+    voc = Vocabulary(
+        None,
+        simple_score,
+        pl_dir=pl_dir_path,
+        temp_dir=os.path.dirname(os.path.realpath(__file__)))
 
     voc.merge_pl()
     file_result = (
@@ -20,9 +25,10 @@ def test_merge_based():
     with open(os.path.join(pl_dir_path, 'PL_MERGED')) as f:
         assert (f.read() == file_result)
 
-    assert(
-        voc.voc_dict['apple'] == [1, 0] and
-        voc.voc_dict['boat'] == [3, 20] and
-        voc.voc_dict['brave'] == [1, 78] and
-        voc.voc_dict['craft'] == [2, 98] and
-        voc.voc_dict['pen'] == [1, 138])
+    if sys.platform.startswith('linux'):
+        assert(
+            voc.voc_dict['apple'] == [1, 0] and
+            voc.voc_dict['boat'] == [3, 20] and
+            voc.voc_dict['brave'] == [1, 78] and
+            voc.voc_dict['craft'] == [2, 98] and
+            voc.voc_dict['pen'] == [1, 138])
