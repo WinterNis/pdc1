@@ -166,7 +166,6 @@ class Vocabulary:
     def access_pl(self, word):
         """Return the posting list of a word"""
         offset = self.voc_dict[word][1]
-        print(self.voc_dict[word])
-        self.mem_map.seek(offset)
-        pl = self.mem_map.readline().split()
-        return list(zip(pl[::2], pl[1::2]))
+        self.mem_map_file.seek(offset)
+        pl = self.mem_map_file.readline().decode().split()
+        return SortedDict(zip(pl[::2], list(map(int,pl[1::2]))))
