@@ -2,6 +2,7 @@ import os
 import glob
 import gc
 import mmap
+from collections import deque
 
 import psutil
 from sortedcontainers import SortedDict
@@ -122,7 +123,7 @@ class Vocabulary:
                 file = file_list[f_index]
                 if words[f_index] == min_word:
                     t = file[1]
-                    doc_id_lists.append(list(zip(t[::2], t[1::2])))  # OP function to obtain pairs from the list
+                    doc_id_lists.append(deque(zip(t[::2], t[1::2])))  # OP function to obtain pairs from the list
                     l = file[0].readline()  # read a new line
                     if l == '':
                         # the file is empty, it can be removed from the list
@@ -145,8 +146,8 @@ class Vocabulary:
                 while d_index < len(doc_id_lists):
                     if doc_id_lists[d_index][0][0] == min_doc_id:  # we look for the first doc_id
                         pl[-1][1] += int(doc_id_lists[d_index][0][1])  # update the score
-                        del doc_id_lists[d_index][0]
-                        if not doc_id_lists[d_index]:  # the pl list is empty and can  be removed
+                        doc_id_lists[d_index].popleft()  # efficient since it's a deque
+                        if not doc_id_lists[d_index]:  # the pl list is empty and can be removed
                             del doc_id_lists[d_index]
                         else:
                             d_index += 1
@@ -177,5 +178,5 @@ class Vocabulary:
         pl = self.mem_map_file.readline().decode().split()
         id_sorted_pl = SortedDict(zip(pl[::2], list(map(int,pl[1::2]))))
         pl = self.mem_map_file.readline().decode().split()
-        score_sorted_pl = SortedDict(zip(pl[::2], list(map(int,pl[1::2]))))
+        score_sorted_pl = SortedDict(zip(pl[::2], pl[1::2]))
         return [id_sorted_pl, score_sorted_pl]
