@@ -3,10 +3,8 @@ import sys
 
 from vocabulary import Vocabulary
 
-
 def simple_score(count, *args):
     return count
-
 
 def test_merge_based():
     pl_dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'pl')
