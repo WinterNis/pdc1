@@ -13,8 +13,10 @@ from preprocessing import tokenize
 class Vocabulary:
 
     def __init__(self, doc_dir, score_function, pl_dir='./pl', temp_dir='./pl', max_memory_use=0.5):
+        """Initialize the vocabulary object. If the doc_dir is None, saved voc structure will be
+        load from disc"""
 
-        self.doc_dir = doc_dir
+        self.doc_dir = doc_dir  # Directory containing the la* files
         self.pl_dir = pl_dir  # default directory for the temp files storage
         self.temp_dir = temp_dir
         self.pl_files_count = 0  # count for temp file identification
@@ -32,6 +34,14 @@ class Vocabulary:
 
         if self.doc_dir:
             self.generate_voc()
+        else:
+            self.load_voc_from_disk()
+
+        self.load_mm_file()
+
+    def load_mm_file(self):
+        self.merged_file = open(os.path.join('pl', 'PL_MERGED'), 'r+')
+        self.mem_map_file = mmap.mmap(self.merged_file.fileno(), 0)
 
     def generate_voc(self):
         """Generate the vocabulary index from the files in doc_dir, and store it in voc dict"""
@@ -79,9 +89,6 @@ class Vocabulary:
 
         self.flush_pl_to_disk(posting_file)  # flush the remaining pl to the disk
         self.merge_pl()
-
-        self.merged_file = open(os.path.join('pl', 'PL_MERGED'), 'r+')
-        self.mem_map_file = mmap.mmap(self.merged_file.fileno(), 0)
 
     def close(self):
         """Correctly close the pl file"""
@@ -154,14 +161,14 @@ class Vocabulary:
                     else:
                         d_index += 1
 
-            self.voc_dict[min_word] = [len(pl), merged_file.tell()] # store the offset in the file
+            self.voc_dict[min_word] = [len(pl), merged_file.tell()]  # store the offset in the file
 
             # Write the pl to the merged file
             score_sorted_pl = SortedDict()
             for l in pl:
                 score = self.score_function(
                     l[1], self.docs_token_counts.get(l[0]), len(pl), len(self.docs_token_counts))
-                score_sorted_pl[str(score)] = l[0] # add element to the score sorted pl
+                score_sorted_pl[str(score)] = l[0]  # add element to the score sorted pl
                 merged_file.write(str(l[0]) + ' ' + str(score) + ' ')
             merged_file.write('\n')
 
@@ -178,7 +185,7 @@ class Vocabulary:
         offset = self.voc_dict[word][1]
         self.mem_map_file.seek(offset)
         pl = self.mem_map_file.readline().decode().split()
-        id_sorted_pl = SortedDict(zip(pl[::2], list(map(int,pl[1::2]))))
+        id_sorted_pl = SortedDict(zip(pl[::2], list(map(int, pl[1::2]))))
         pl = self.mem_map_file.readline().decode().split()
         score_sorted_pl = SortedDict(zip(pl[::2], pl[1::2]))
         return [id_sorted_pl, score_sorted_pl]
@@ -188,11 +195,14 @@ class Vocabulary:
         filename = os.path.join(self.pl_dir, 'voc_index')
         with open(filename, 'w+') as f:
             for key, value in self.voc_dict.items():
-                f.write(key + ' ' + str(value[0]) + str(value[1]) + '\n')
+                f.write(key + ' ' + str(value[0]) + ' ' + str(value[1]) + '\n')
 
     def load_voc_from_disk(self):
+        """Load a saved voc struture from disc"""
         filename = os.path.join(self.pl_dir, 'voc_index')
+        if not os.path.isfile(filename):
+            print('Voc file not existing, use index option')
         with open(filename, 'r') as f:
             for line in f:
                 l = line.split()
-                self.voc_dict[l[0]] = [l[1], l[2]]
+                self.voc_dict[l[0]] = [int(l[1]), int(l[2])]

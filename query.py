@@ -2,8 +2,9 @@ from operator import itemgetter
 
 
 def basic_and_query(voc, searchTermsList):
-    """Find the docID where all the terms ('AND' type query) in searchTermsList appear and sort them by their score
-    we work on a finished inverted file from which we use interface functions"""
+    """Find the docID where all the terms ('AND' type query) in searchTermsList
+    appear and sort them by their score we work on a finished inverted file from
+    which we use interface functions"""
 
     resultsList = list()  # contains the docIds sorted by their score
 
@@ -14,10 +15,9 @@ def basic_and_query(voc, searchTermsList):
         # getPLForTerm() is an interface function that return the posting list of a term
         searchTermPL = voc.access_pl(searchTerm)[0]
 
+        PLList.append(searchTermPL)  # we store the PL associated to the searchTerm
 
-        PLList.append(searchTermPL) # we store the PL associated to the searchTerm
-
-    PLList = sorted(PLList, key=len) # we sorted the list by the PL length
+    PLList = sorted(PLList, key=len)  # we sorted the list by the PL length
 
     # we go over each PL sorted by DocID but from the smallest to the biggest
     # we add to results all of the first PL,
@@ -30,16 +30,15 @@ def basic_and_query(voc, searchTermsList):
 
             scoreInPL = PL.get(docID)
 
-            if scoreInPL == None:
+            if scoreInPL is None:
                 score = -1
                 break
             else:
                 score += scoreInPL
 
         if score > 0:
-            resultsList.append([docID,score])
+            resultsList.append([docID, score])
 
-    resultsList = sorted(resultsList,key=itemgetter(1),reverse=1)#sort by score
-    print(resultsList)
+    resultsList = sorted(resultsList, key=itemgetter(1), reverse=1)  # sort by score
 
     return resultsList

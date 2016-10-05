@@ -22,7 +22,6 @@ def calculatePostingListScore(postingList, docsTokenCounts):
 
 
 def calculateDocumentScore(termDocumentCount, docTokenCounts, numberOfDocsContainingTerm, totalNumberOfDocs):
-
     # Calculate term-frequency
     tf = termDocumentCount / docTokenCounts
 
@@ -31,4 +30,4 @@ def calculateDocumentScore(termDocumentCount, docTokenCounts, numberOfDocsContai
 
     # Calculate score
     score = tf * idf
-    return  int(score*1000000000)  # Note : can be optimized
+    return int(score*1000000000)  # Note : can be optimized
