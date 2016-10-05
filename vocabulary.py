@@ -182,7 +182,10 @@ class Vocabulary:
 
     def access_pl(self, word):
         """Return the posting list of a word"""
-        offset = self.voc_dict[word][1]
+        word = self.voc_dict.get(word)
+        if word is None:
+            return None
+        offset = word[1]
         self.mem_map_file.seek(offset)
         pl = self.mem_map_file.readline().decode().split()
         id_sorted_pl = SortedDict(zip(pl[::2], list(map(int, pl[1::2]))))
