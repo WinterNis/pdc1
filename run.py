@@ -1,9 +1,41 @@
+import argparse
+import timeit
+
 from vocabulary import Vocabulary
 from scoring import calculateDocumentScore
+from query import basic_and_query
 
 
 def run():
-    voc = Vocabulary('latimes', calculateDocumentScore)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--index', action='store_true')
+    args = parser.parse_args()
+
+    voc = None
+
+    if args.index:
+        start_time = timeit.default_timer()
+        voc = Vocabulary('latimes', calculateDocumentScore)
+        index_time = timeit.default_timer() - start_time
+        print('Indexation took ' + str(index_time) + ' seconds')
+    else:
+        voc = Vocabulary(None, calculateDocumentScore)
+
+    query = ''
+
+    while(1):
+        query = input("Query? ")
+
+        if query == '/quit':
+            break
+        start_time = timeit.default_timer()
+        result = basic_and_query(voc, query.split())
+        exec_time = timeit.default_timer() - start_time
+        for r in result:
+            print(str(r[0]) + ' ' + str(r[1]))
+        print('Query executed in ' + str(exec_time) + ' seconds')
+
     voc.close()
+
 
 run()

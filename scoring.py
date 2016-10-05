@@ -30,5 +30,4 @@ def calculateDocumentScore(termDocumentCount, docTokenCounts, numberOfDocsContai
 
     # Calculate score
     score = tf * idf
-
-    return score
+    return int(score*1000000000)  # Note : can be optimized
