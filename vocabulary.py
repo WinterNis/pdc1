@@ -172,6 +172,9 @@ class Vocabulary:
 
         self.write_voc_to_disk()
 
+        for filepath in glob.glob(os.path.join(self.temp_dir, 'pl_temp_*')):
+            os.remove(filepath)
+
     def access_pl(self, word):
         """Return the posting list of a word"""
         word = self.voc_dict.get(word)
@@ -184,8 +187,8 @@ class Vocabulary:
         id_sorted_pl = SortedDict(zip(pl[::2], list(map(int, pl[1::2]))))
         temp_pl = zip(pl[1::2], pl[::2])
 
-        #TODO make it readable
-        score_sorted_pl = map(lambda x: (str( self.score_function(int(x[0]), self.docs_token_counts[x[1]], len(id_sorted_pl), len(self.docs_token_counts) )), x[1]), temp_pl)
+        # TODO make it readable
+        score_sorted_pl = map(lambda x: (str(self.score_function(int(x[0]), self.docs_token_counts[x[1]], len(id_sorted_pl), len(self.docs_token_counts))), x[1]), temp_pl)
         score_sorted_pl = OrderedDict(sorted(list(score_sorted_pl), key=lambda x: int(x[0])))
 
         return [id_sorted_pl, score_sorted_pl]
@@ -202,7 +205,6 @@ class Vocabulary:
         with open(filename, 'w+') as f:
             for key, value in self.docs_token_counts.items():
                 f.write(key + ' ' + str(value) + '\n')
-
 
     def load_voc_from_disk(self):
         """Load a saved voc struture from disc"""
