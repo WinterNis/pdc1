@@ -23,18 +23,3 @@ def vb_decompress(byte_stream):
             numbers += n
             n = 0
     return numbers
-
-
-def test_vb_compression():
-    for val in range(10000):
-        compressed_val = vb_compress(val)
-        uncompressed_val = vb_decompress(compressed_val)
-        result = ("Success" if (val == uncompressed_val) else "Failure")
-        print(str(val) + " -> compression gives " + str(compressed_val) + " | decompression gives " + str(uncompressed_val) + " | " + result)
-
-        if val != uncompressed_val:
-            print("FAILED")
-            break
-    return
-
-test_vb_compression()
