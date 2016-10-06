@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ihm',
-    'ihm.testing'
+    'ihm.backend'
 ]
 
 MIDDLEWARE = [

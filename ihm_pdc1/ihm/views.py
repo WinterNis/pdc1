@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .testing.testing import bleu
+from .backend.vocabulary import bleu
 
 # Create your views here.
 
