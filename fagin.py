@@ -48,7 +48,7 @@ def fagin_loop(n,k,last_index_seen,sorted_score_pl_list,sorted_id_pl_list,result
         i = 0
         all_pl_completely_seen = True#check if all the pl are entirely seen in order to know if we can find more docs or not
         tau = 0#the heart variable 
-        
+
         while i<n:#go through the algo for each term of the research list
 
             #we will go through each posting list
@@ -71,17 +71,17 @@ def fagin_loop(n,k,last_index_seen,sorted_score_pl_list,sorted_id_pl_list,result
                             score += int(sorted_by_id_pl[doc_id])
 
                     #we check if we can add this doc to results
-                    if len(results_list)<k:
-                        if [doc_id,score] not in results_list:
+                    if [doc_id,score] not in results_list:
+                        if len(results_list)<k:
                             results_list.append([doc_id,score])
 
-                    else:
-                        #we check the lowest score in result list and if we have a better score we replace it with the new doc
-                        min_item = min(results_list,key=itemgetter(1))
+                        else:
+                            #we check the lowest score in result list and if we have a better score we replace it with the new doc
+                            min_item = min(results_list,key=itemgetter(1))
 
-                        if score > int(min_item[1]):
-                            results_list.remove(min_item)
-                            results_list.append([doc_id,score])
+                            if score > int(min_item[1]):
+                                results_list.remove(min_item)
+                                results_list.append([doc_id,score])
                 else:
                     #if we are in a conjonctive qery, we must end when we reach the end of a posting list
                     if is_and_query == True:
