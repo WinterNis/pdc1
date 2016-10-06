@@ -57,7 +57,7 @@ def fagin_loop(n,k,last_index_seen,sorted_score_pl_list,sorted_id_pl_list,result
             for pl in sorted_score_pl_list:
                 if last_index_seen<len(pl):
 
-                    all_pl_completely_seen = False#we don't have finished to see all the pl
+                    all_pl_completely_seen = False#we don't have finished to see all the current pl
 
                     item = pl.peekitem(last_index_seen)
                     doc_id = item[1]#get docID
@@ -66,24 +66,31 @@ def fagin_loop(n,k,last_index_seen,sorted_score_pl_list,sorted_id_pl_list,result
                     tau += int(item[0])#tau is calculated on live
 
                     #we get the total score for this doc in all PL of research terms
+                    is_doc_in_all_pl = True#boolean value use for "and" type query
+
                     for sorted_by_id_pl in sorted_id_pl_list:
+
                         if doc_id in sorted_by_id_pl:
                             score += int(sorted_by_id_pl[doc_id])
+                        else:
+                            is_doc_in_all_pl = False
 
                     #we check if we can add this doc to results
-                    if [doc_id,score] not in results_list:
-                        if len(results_list)<k:
-                            results_list.append([doc_id,score])
-
-                        else:
-                            #we check the lowest score in result list and if we have a better score we replace it with the new doc
-                            min_item = min(results_list,key=itemgetter(1))
-
-                            if score > int(min_item[1]):
-                                results_list.remove(min_item)
+                    #first we check that if we are in an "and" query, the doc_id is in all pl, else we can't add it to results
+                    if is_doc_in_all_pl == True or is_and_query == False:
+                        if [doc_id,score] not in results_list:
+                            if len(results_list)<k:
                                 results_list.append([doc_id,score])
+
+                            else:
+                                #we check the lowest score in result list and if we have a better score we replace it with the new doc
+                                min_item = min(results_list,key=itemgetter(1))
+
+                                if score > int(min_item[1]):
+                                    results_list.remove(min_item)
+                                    results_list.append([doc_id,score])
                 else:
-                    #if we are in a conjonctive qery, we must end when we reach the end of a posting list
+                    #if we are in a conjonctive query, we must end when we reach the end of a posting list
                     if is_and_query == True:
                         return results_list
 
@@ -108,6 +115,3 @@ def fagin_loop(n,k,last_index_seen,sorted_score_pl_list,sorted_id_pl_list,result
         is_results_list_found = True
 
     return results_list
-
-
-

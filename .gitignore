@@ -93,5 +93,5 @@ latimes/*
 latimes/
 
 #pl files
-pl/*
-tests/vocabulary/pl/*
+ihm_pdc1/ihm/backend/pl/*
+ihm_pdc1/ihm/backend/tests/vocabulary/pl/*
