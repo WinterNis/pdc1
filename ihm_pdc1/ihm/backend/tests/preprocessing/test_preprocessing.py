@@ -1,9 +1,9 @@
-mport pytest
 import preprocessing
 
 #########################
 # Unit tests for preprocessing functions
 #########################
+
 
 def test_tokenization():
     toTokenize = "\"Text to tokenize (in fact, untokenized text), has to be tokenized. It has to be tokenized as soon as possible\""
@@ -12,6 +12,7 @@ def test_tokenization():
     for a, b in zip(tokens, tokensToTest):
         assert(a == b)
 
+
 def test_stemming():
     wordsToStem = ["tokenized", "roses", "brutally", "dozens", "stupidity", "notorious", "english", "stemming", "stemmed", "soft"]
     for i in range(0, len(wordsToStem)-1):
@@ -19,6 +20,7 @@ def test_stemming():
     stemmedWords = ["token", "rose", "brutal", "dozen", "stupid", "notori", "english", "stem", "stem", "soft"]
     for a, b in zip(wordsToStem, stemmedWords):
         assert(a == b)
+
 
 def test_removeStopWords():
     tokensToFilter = ["In", "this", "text", "stop", "words", "have", "to", "be", "removed", "In", "each", "phrase", "occurances", "of", "words", "such", "as", "this", "that", "so", "and", "and", "of", "will", "be", "removed"]
