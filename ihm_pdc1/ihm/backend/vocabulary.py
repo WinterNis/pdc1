@@ -230,4 +230,4 @@ class Vocabulary:
         with open(filename, 'r') as f:
             for line in f:
                 l = line.split()
-                self.docs_token_counts[l[0]] = [int(l[1])]
+                self.docs_token_counts[l[0]] = int(l[1])
