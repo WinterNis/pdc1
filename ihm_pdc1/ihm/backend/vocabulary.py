@@ -7,7 +7,7 @@ from collections import deque, OrderedDict
 import psutil
 from sortedcontainers import SortedDict
 
-from preprocessing import tokenize
+from .preprocessing import tokenize
 
 
 class Vocabulary:
@@ -16,6 +16,7 @@ class Vocabulary:
         """Initialize the vocabulary object. If the doc_dir is None, saved voc structure will be
         load from disc"""
 
+        self.absolute_path = os.path.dirname(os.path.realpath(__file__))
         self.doc_dir = doc_dir  # Directory containing the la* files
         self.pl_dir = pl_dir  # default directory for the temp files storage
         self.temp_dir = temp_dir
@@ -40,7 +41,7 @@ class Vocabulary:
         self.load_mm_file()
 
     def load_mm_file(self):
-        self.merged_file = open(os.path.join('pl', 'PL_MERGED'), 'r+')
+        self.merged_file = open(os.path.join(self.absolute_path, 'pl', 'PL_MERGED'), 'r+')
         self.mem_map_file = mmap.mmap(self.merged_file.fileno(), 0)
 
     def generate_voc(self):
@@ -50,8 +51,7 @@ class Vocabulary:
         # the schema of the posting_file is : word:[postingList]
         posting_file = SortedDict()  # temporary structure
 
-        for filepath in glob.glob(os.path.join(self.doc_dir, 'la*')):
-
+        for filepath in glob.glob(os.path.join(self.absolute_path, self.doc_dir, 'la*')):
             doc_id = os.path.basename(filepath)[2:]
 
             with open(filepath, 'r') as f:
@@ -208,18 +208,22 @@ class Vocabulary:
 
     def load_voc_from_disk(self):
         """Load a saved voc struture from disc"""
-        filename = os.path.join(self.pl_dir, 'voc_index')
+        filename = os.path.join(self.absolute_path, self.pl_dir, 'voc_index')
+
         if not os.path.isfile(filename):
             print('Voc file not existing, use index option')
+
         with open(filename, 'r') as f:
             for line in f:
                 l = line.split()
                 self.voc_dict[l[0]] = [int(l[1]), int(l[2])]
 
         # Doc token counts
-        filename = os.path.join(self.pl_dir, 'doc_token_counts')
+        filename = os.path.join(self.absolute_path, self.pl_dir, 'doc_token_counts')
+
         if not os.path.isfile(filename):
             print('Document token counts file not existing, use index option')
+
         with open(filename, 'r') as f:
             for line in f:
                 l = line.split()

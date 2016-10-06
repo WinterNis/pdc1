@@ -6,16 +6,23 @@
 </head>
 <body>
 
-{{test}}
-<form action="/" method="post">
+<form action="/generate" method="post" name="generate">{% csrf_token %}
     <input type="submit" value="Generate index">
 </form>
 
-<form action="/" method="post">
+<form action="/search" method="post" name="search">{% csrf_token %}
     <label for="search">Search: </label>
-    <input id="search" type="text" name="search">
+    <input id="search" type="text" name="search"/>
     <input type="submit" value="OK">
 </form>
+
+{% if generated %}
+    <p>Index generated</p>
+{% endif %}
+
+{% if result %}
+    {{ result }}
+{% endif %}
 
 </body>
 </html>

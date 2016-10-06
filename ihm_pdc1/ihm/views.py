@@ -1,8 +1,18 @@
 from django.shortcuts import render
-from .backend.vocabulary import bleu
+from .backend.run import generate_index, search_words
 
 # Create your views here.
 
+def generate(request):
+    if request.method == 'POST':
+        generate_index()
+        generated = True
+
+    return render(request, 'search.html', locals())
+
 def search(request):
-    a = bleu()
-    return render(request, 'search.html', {'test':a})
+    if request.method == 'POST':
+        #the called function is making a read to the disk each time, it could be interesting to cache it
+        result = search_words(request.POST.get('search'))
+
+    return render(request, 'search.html', locals())

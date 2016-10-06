@@ -1,9 +1,9 @@
 import argparse
 import timeit
 
-from vocabulary import Vocabulary
-from scoring import calculateDocumentScore
-from query import basic_and_query
+from .vocabulary import Vocabulary
+from .scoring import calculateDocumentScore
+from .query import basic_and_query
 
 
 def run():
@@ -38,4 +38,18 @@ def run():
     voc.close()
 
 
-run()
+def generate_index():
+    """For django call"""
+    voc = Vocabulary('latimes', calculateDocumentScore)
+
+
+def search_words(words):
+    """For django call"""
+    try:
+        voc = Vocabulary(None, calculateDocumentScore)
+    except:
+        return "Missing file"
+
+    result = basic_and_query(voc, words.split())
+    return result
+
