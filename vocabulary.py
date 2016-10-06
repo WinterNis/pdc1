@@ -2,7 +2,7 @@ import os
 import glob
 import gc
 import mmap
-from collections import deque
+from collections import deque, OrderedDict
 
 import psutil
 from sortedcontainers import SortedDict
@@ -76,7 +76,7 @@ class Vocabulary:
                     # the word already exists (there is a line in posting_file)
                     else:
                         word_pl = posting_file[word]
-                        if doc_id in posting_file[word]:
+                        if doc_id in word_pl:
                             word_pl[doc_id] += 1
                         else:
                             word_pl[doc_id] = 1
@@ -164,15 +164,7 @@ class Vocabulary:
             self.voc_dict[min_word] = [len(pl), merged_file.tell()]  # store the offset in the file
 
             # Write the pl to the merged file
-            score_sorted_pl = SortedDict()
             for l in pl:
-                score = self.score_function(
-                    l[1], self.docs_token_counts.get(l[0]), len(pl), len(self.docs_token_counts))
-                score_sorted_pl[str(score)] = l[0]  # add element to the score sorted pl
-                merged_file.write(str(l[0]) + ' ' + str(score) + ' ')
-            merged_file.write('\n')
-
-            for l in score_sorted_pl.items():
                 merged_file.write(str(l[0]) + ' ' + str(l[1]) + ' ')
             merged_file.write('\n')
 
@@ -188,9 +180,14 @@ class Vocabulary:
         offset = word[1]
         self.mem_map_file.seek(offset)
         pl = self.mem_map_file.readline().decode().split()
+
         id_sorted_pl = SortedDict(zip(pl[::2], list(map(int, pl[1::2]))))
-        pl = self.mem_map_file.readline().decode().split()
-        score_sorted_pl = SortedDict(zip(pl[::2], pl[1::2]))
+        temp_pl = zip(pl[1::2], pl[::2])
+
+        #TODO make it readable
+        score_sorted_pl = map(lambda x: (str( self.score_function(int(x[0]), self.docs_token_counts[x[1]], len(id_sorted_pl), len(self.docs_token_counts) )), x[1]), temp_pl)
+        score_sorted_pl = OrderedDict(sorted(list(score_sorted_pl), key=lambda x: int(x[0])))
+
         return [id_sorted_pl, score_sorted_pl]
 
     def write_voc_to_disk(self):
@@ -199,6 +196,13 @@ class Vocabulary:
         with open(filename, 'w+') as f:
             for key, value in self.voc_dict.items():
                 f.write(key + ' ' + str(value[0]) + ' ' + str(value[1]) + '\n')
+
+        # Doc token counts
+        filename = os.path.join(self.pl_dir, 'doc_token_counts')
+        with open(filename, 'w+') as f:
+            for key, value in self.docs_token_counts.items():
+                f.write(key + ' ' + str(value) + '\n')
+
 
     def load_voc_from_disk(self):
         """Load a saved voc struture from disc"""
@@ -209,3 +213,12 @@ class Vocabulary:
             for line in f:
                 l = line.split()
                 self.voc_dict[l[0]] = [int(l[1]), int(l[2])]
+
+        # Doc token counts
+        filename = os.path.join(self.pl_dir, 'doc_token_counts')
+        if not os.path.isfile(filename):
+            print('Document token counts file not existing, use index option')
+        with open(filename, 'r') as f:
+            for line in f:
+                l = line.split()
+                self.docs_token_counts[l[0]] = [int(l[1])]
