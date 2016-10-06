@@ -12,7 +12,7 @@ from preprocessing import tokenize
 
 class Vocabulary:
 
-    def __init__(self, doc_dir, score_function, pl_dir='./pl', temp_dir='./pl', max_memory_use=0.5):
+    def __init__(self, doc_dir, score_function, pl_dir='./pl', temp_dir='./pl', max_memory_use=0.5, purge_temp=True):
         """Initialize the vocabulary object. If the doc_dir is None, saved voc structure will be
         load from disc"""
 
@@ -26,6 +26,7 @@ class Vocabulary:
         self.docs_token_counts = {}  # contains the number of tokens per doc
         self.voc_dict = {}  # contains the final vocabulary structure
         self.max_memory_use = max_memory_use
+        self.purge_temp = purge_temp
 
         if not os.path.exists(self.pl_dir):  # create the pl containing folder
             os.makedirs(self.pl_dir)
@@ -40,7 +41,11 @@ class Vocabulary:
         self.load_mm_file()
 
     def load_mm_file(self):
-        self.merged_file = open(os.path.join('pl', 'PL_MERGED'), 'r+')
+        filepath = os.path.join('pl', 'PL_MERGED')
+        if not os.path.isfile(filepath):
+            print('Pl file not existing, use index option')
+            return
+        self.merged_file = open(filepath, 'r+')
         self.mem_map_file = mmap.mmap(self.merged_file.fileno(), 0)
 
     def generate_voc(self):
@@ -172,8 +177,9 @@ class Vocabulary:
 
         self.write_voc_to_disk()
 
-        for filepath in glob.glob(os.path.join(self.temp_dir, 'pl_temp_*')):
-            os.remove(filepath)
+        if self.purge_temp:
+            for filepath in glob.glob(os.path.join(self.temp_dir, 'pl_temp_*')):
+                os.remove(filepath)
 
     def access_pl(self, word):
         """Return the posting list of a word"""
@@ -211,6 +217,7 @@ class Vocabulary:
         filename = os.path.join(self.pl_dir, 'voc_index')
         if not os.path.isfile(filename):
             print('Voc file not existing, use index option')
+            return
         with open(filename, 'r') as f:
             for line in f:
                 l = line.split()
