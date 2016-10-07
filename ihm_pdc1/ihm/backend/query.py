@@ -1,5 +1,30 @@
 from operator import itemgetter
 
+#TODO write unit test and test
+def basic_or_query(voc, searchTermsList):
+    """Find the docID documents where any of the listed terms ('OR' type query) in searchTermsList
+    appear and sort them by their score we work on a finished inverted file from
+    which we use interface functions"""
+
+    results = {} # { "docID" => score }
+    PLList = list()
+
+    for searchTerm in searchTermsList:
+        PLList.append(voc.access_pl(searchTerm)[0])
+
+    PLList = sorted(PLList, key=len)
+
+    # for each docID-score in each PL, add score in results dictionary
+    for pl in PLList:
+        for docID, score in pl.items():
+            if docID in results:
+                results[docID] += score
+            else:
+                results[docID] = score
+
+    resultsList = sorted(results.keys(), reverse=1) # sort by score
+
+    return resultsList
 
 def basic_and_query(voc, searchTermsList):
     """Find the docID where all the terms ('AND' type query) in searchTermsList

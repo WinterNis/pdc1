@@ -91,6 +91,7 @@ ENV/
 # LaTime articles
 latimes/*
 latimes/
+latimes-*/
 
 #pl files
 ihm_pdc1/ihm/backend/pl/*
