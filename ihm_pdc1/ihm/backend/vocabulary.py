@@ -12,7 +12,7 @@ from .preprocessing import tokenize
 
 class Vocabulary:
 
-    def __init__(self, doc_dir, score_function, pl_dir='./pl', temp_dir='./pl', max_memory_use=0.5, purge_temp=True):
+    def __init__(self, doc_dir, score_function, pl_dir='pl', temp_dir='pl', max_memory_use=0.5, purge_temp=True):
         """Initialize the vocabulary object. If the doc_dir is None, saved voc structure will be
         load from disc"""
 
@@ -29,10 +29,10 @@ class Vocabulary:
         self.max_memory_use = max_memory_use
         self.purge_temp = purge_temp
 
-        if not os.path.exists(self.pl_dir):  # create the pl containing folder
-            os.makedirs(self.pl_dir)
-        if not os.path.exists(self.temp_dir):  # create the temp pl containing folder
-            os.makedirs(self.temp_dir)
+        if not os.path.exists(os.path.join(self.absolute_path,self.pl_dir)):  # create the pl containing folder
+            os.makedirs(os.path.join(self.absolute_path,self.pl_dir))
+        if not os.path.exists(os.path.join(self.absolute_path,self.temp_dir)):  # create the temp pl containing folder
+            os.makedirs(os.path.join(self.absolute_path,self.temp_dir))
 
         if self.doc_dir:
             self.generate_voc()
@@ -103,6 +103,7 @@ class Vocabulary:
     def flush_pl_to_disk(self, posting_file):
         """Write the posting_list as a temporary file"""
         filename = os.path.join(self.absolute_path, self.temp_dir, 'pl_temp_' + str(self.pl_files_count))
+
         with open(filename, 'w+') as f:
             for word, pl in posting_file.items():
                 f.write(word)
@@ -201,7 +202,9 @@ class Vocabulary:
 
     def write_voc_to_disk(self):
         """Store the voc structure into a file, so it can be retrieved later"""
+
         filename = os.path.join(self.absolute_path, self.pl_dir, 'voc_index')
+
         with open(filename, 'w+') as f:
             for key, value in self.voc_dict.items():
                 f.write(key + ' ' + str(value[0]) + ' ' + str(value[1]) + '\n')
