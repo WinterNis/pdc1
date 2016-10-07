@@ -30,7 +30,7 @@ def test_fag():
     print(results_list)
 
 
-def test_get_pls(number):
+def get_pls(number):
     pl0 = SortedDict()
     pl1 = SortedDict()
 
