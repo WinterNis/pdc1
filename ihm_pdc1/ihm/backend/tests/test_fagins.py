@@ -4,9 +4,9 @@ from operator import itemgetter
 
 
 def test_fag():
-    pls0 = test_get_pls(0)
-    pls1 = test_get_pls(1)
-    pls2 = test_get_pls(2)
+    pls0 = get_pls(0)
+    pls1 = get_pls(1)
+    pls2 = get_pls(2)
 
     sorted_id_pl_list = list()  # will contain pl sorted by docId
     sorted_score_pl_list = list()  # will contain pl sorted by score
@@ -74,6 +74,3 @@ def get_pls(number):
         pl1[3] = 1
 
     return [pl0, pl1]
-
-
-test_fag()
