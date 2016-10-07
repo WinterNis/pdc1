@@ -102,7 +102,7 @@ class Vocabulary:
 
     def flush_pl_to_disk(self, posting_file):
         """Write the posting_list as a temporary file"""
-        filename = os.path.join(self.temp_dir, 'pl_temp_' + str(self.pl_files_count))
+        filename = os.path.join(self.absolute_path, self.temp_dir, 'pl_temp_' + str(self.pl_files_count))
         with open(filename, 'w+') as f:
             for word, pl in posting_file.items():
                 f.write(word)
@@ -113,14 +113,14 @@ class Vocabulary:
 
     def merge_pl(self):
         """Merge the temporary pl files to one file"""
-        filename = os.path.join(self.pl_dir, 'PL_MERGED')
+        filename = os.path.join(self.absolute_path, self.pl_dir, 'PL_MERGED')
         merged_file = open(filename, 'w+')
 
         file_list = []  # contains the file desriptors and the current line splitted
         words = []  # contains the current word for each file
 
         # initialize the file descriptors containers and word array
-        for filepath in glob.glob(os.path.join(self.temp_dir, 'pl_temp_*')):
+        for filepath in glob.glob(os.path.join(self.absolute_path, self.temp_dir, 'pl_temp_*')):
             f = open(filepath, 'r')
             l = f.readline().split()
             file_list.append([f, l[1:]])
@@ -178,7 +178,7 @@ class Vocabulary:
         self.write_voc_to_disk()
 
         if self.purge_temp:
-            for filepath in glob.glob(os.path.join(self.temp_dir, 'pl_temp_*')):
+            for filepath in glob.glob(os.path.join(self.absolute_path, self.temp_dir, 'pl_temp_*')):
                 os.remove(filepath)
 
     def access_pl(self, word):
@@ -201,13 +201,13 @@ class Vocabulary:
 
     def write_voc_to_disk(self):
         """Store the voc structure into a file, so it can be retrieved later"""
-        filename = os.path.join(self.pl_dir, 'voc_index')
+        filename = os.path.join(self.absolute_path, self.pl_dir, 'voc_index')
         with open(filename, 'w+') as f:
             for key, value in self.voc_dict.items():
                 f.write(key + ' ' + str(value[0]) + ' ' + str(value[1]) + '\n')
 
         # Doc token counts
-        filename = os.path.join(self.pl_dir, 'doc_token_counts')
+        filename = os.path.join(self.absolute_path, self.pl_dir, 'doc_token_counts')
         with open(filename, 'w+') as f:
             for key, value in self.docs_token_counts.items():
                 f.write(key + ' ' + str(value) + '\n')
