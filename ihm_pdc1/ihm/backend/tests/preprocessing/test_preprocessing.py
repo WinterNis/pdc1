@@ -28,3 +28,10 @@ def test_removeStopWords():
     tokensToTest = preprocessing.removeStopWords(tokensToFilter)
     for a, b in zip(filteredTokens, tokensToTest):
         assert(a == b)
+
+def test_preprocessQuery():
+    query = "Hot dogs Are neither hot nor doggies"
+    toTest = preprocessQuery(query)
+    preprocessedQuery = ["hot", "dog", "are", "neither", "hot", "nor", "dog"]
+    for a, b in zip(toTest, preprocessedQuery)
+        assert(a == b)

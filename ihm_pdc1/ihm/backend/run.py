@@ -5,6 +5,7 @@ from .vocabulary import Vocabulary
 from .scoring import calculateDocumentScore
 from .query import basic_and_query
 from .fagin import fagin
+from .preprocessing import preprocessQuery
 
 
 def run():
@@ -30,7 +31,7 @@ def run():
         if query == '/quit':
             break
         start_time = timeit.default_timer()
-        result = basic_and_query(voc, query.split())
+        result = basic_and_query(voc, preprocessQuery(query))
         exec_time = timeit.default_timer() - start_time
         for r in result:
             print(str(r[0]) + ' ' + str(r[1]))
@@ -44,12 +45,12 @@ def generate_index():
     voc = Vocabulary('latimes', calculateDocumentScore)
 
 
-def search_words(words):
+def search_words(query):
     """For django call"""
     try:
         voc = Vocabulary(None, calculateDocumentScore)
     except:
         return "Missing file"
 
-    result = fagin(voc, words.split(), 10, True)
+    result = fagin(voc, preprocessQuery(query), 10, True)
     return result

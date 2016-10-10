@@ -22,3 +22,11 @@ def stem(word):
 def removeStopWords(tokens):
     filtered_words = [word for word in tokens if word not in stopwords.words('english')]
     return filtered_words
+
+# Applies preprocessing to query and returns list of tokens
+def preprocessQuery(query):
+    tokens = tokenize(query)
+    removeStopWords(tokens)
+    for i in range(len(tokens)):
+        tokens[i] = stem(tokens[i])
+    return tokens
