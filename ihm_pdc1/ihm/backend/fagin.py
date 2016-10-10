@@ -26,6 +26,7 @@ def fagin(voc, search_terms_list, number_of_results_wanted, is_and_query):
             sorted_score_pl_list.append(pls_for_term[1])
 
     # let's go in fagin's awesomeness
+    print(sorted_score_pl_list)
     results_list = fagin_loop(n, k, last_index_seen, sorted_score_pl_list, sorted_id_pl_list, results_list, is_and_query)
 
     results_list = sorted(results_list, key=itemgetter(1), reverse=1)  # sort by score
@@ -103,11 +104,12 @@ def fagin_loop(n, k, last_index_seen, sorted_score_pl_list, sorted_id_pl_list, r
 
         # we check tau, if there is a doc in results_list that has a lower score than tau, we re iterate,
         # incrementing the last_index seen in order to see the next best score in pl
-        min_item = min(results_list, key=itemgetter(1))
-        if min_item[1] < tau:
-            last_index_seen = last_index_seen+1
-            continue
-            # return fagin_loop(n,k,last_index_seen+1,sorted_score_pl_list,sorted_id_pl_list,results_list,is_and_query)
+        if len(results_list) > 0:
+            min_item = min(results_list, key=itemgetter(1))
+            if min_item[1] < tau:
+                last_index_seen = last_index_seen+1
+                continue
+                # return fagin_loop(n,k,last_index_seen+1,sorted_score_pl_list,sorted_id_pl_list,results_list,is_and_query)
 
         is_results_list_found = True
 
