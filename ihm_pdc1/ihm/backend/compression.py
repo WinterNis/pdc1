@@ -1,5 +1,6 @@
 from struct import pack, unpack
 
+
 def vb_compress(number):
     bytes = []
     while True:
@@ -10,6 +11,7 @@ def vb_compress(number):
     bytes[-1] += 128
 
     return pack('%dB' % len(bytes), *bytes)
+
 
 def vb_decompress(byte_stream):
     n = 0

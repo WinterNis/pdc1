@@ -4,6 +4,7 @@ import timeit
 from .vocabulary import Vocabulary
 from .scoring import calculateDocumentScore
 from .query import basic_and_query
+from .fagin import fagin
 
 
 def run():
@@ -50,6 +51,5 @@ def search_words(words):
     except:
         return "Missing file"
 
-    result = basic_and_query(voc, words.split())
+    result = fagin(voc, words.split(), 10, True)
     return result
-

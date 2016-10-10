@@ -196,7 +196,7 @@ class Vocabulary:
 
         # TODO make it readable
         score_sorted_pl = map(lambda x: (str(self.score_function(int(x[0]), self.docs_token_counts[x[1]], len(id_sorted_pl), len(self.docs_token_counts))), x[1]), temp_pl)
-        score_sorted_pl = OrderedDict(sorted(list(score_sorted_pl), key=lambda x: int(x[0])))
+        score_sorted_pl = SortedDict(lambda x: int(x[0]), list(score_sorted_pl))
 
         return [id_sorted_pl, score_sorted_pl]
 
