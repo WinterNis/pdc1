@@ -189,14 +189,23 @@ class Vocabulary:
             return None
         offset = word[1]
         self.mem_map_file.seek(offset)
-        pl = self.mem_map_file.readline().decode().split()
+        line = self.mem_map_file.readline().decode().split()
 
-        id_sorted_pl = SortedDict(zip(pl[::2], list(map(int, pl[1::2]))))
-        temp_pl = zip(pl[1::2], pl[::2])
+        pl = list(map(
+            lambda x: (
+                x[0],
+                self.score_function(
+                    int(x[1]),
+                    self.docs_token_counts[x[0]],
+                    len(line)/2,
+                    len(self.docs_token_counts))),
+            list(zip(line[::2], line[1::2]))
+            ))
 
-        # TODO make it readable
-        score_sorted_pl = map(lambda x: (str(self.score_function(int(x[0]), self.docs_token_counts[x[1]], len(id_sorted_pl), len(self.docs_token_counts))), x[1]), temp_pl)
-        score_sorted_pl = SortedDict(lambda x: int(x[0]), list(score_sorted_pl))
+        id_sorted_pl = SortedDict(pl)
+        inverted_pl = [(str(p[1]), p[0]) for p in pl]
+
+        score_sorted_pl = SortedDict(lambda k: int(k), inverted_pl)
 
         return [id_sorted_pl, score_sorted_pl]
 
