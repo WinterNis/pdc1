@@ -189,8 +189,6 @@ class Vocabulary:
             return None
         offset = word[1]
         self.mem_map_file.seek(offset)
-        import pdb;
-        pdb.set_trace()
         line = self.mem_map_file.readline().decode().split()
 
         pl = list(map(
