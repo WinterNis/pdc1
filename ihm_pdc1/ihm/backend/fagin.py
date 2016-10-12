@@ -57,7 +57,7 @@ def fagin_loop(n, k, last_index_seen, sorted_score_pl_list, sorted_id_pl_list, r
 
                     all_pl_completely_seen = False  # we don't have finished to see all the current pl
 
-                    item = pl.peekitem(last_index_seen)
+                    item = pl[last_index_seen]
                     doc_id = item[1]  # get docID
                     # score = item[0]#get score
                     score = 0

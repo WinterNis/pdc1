@@ -189,6 +189,8 @@ class Vocabulary:
             return None
         offset = word[1]
         self.mem_map_file.seek(offset)
+        import pdb;
+        pdb.set_trace()
         line = self.mem_map_file.readline().decode().split()
 
         pl = list(map(
@@ -205,7 +207,7 @@ class Vocabulary:
         id_sorted_pl = SortedDict(pl)
         inverted_pl = [(str(p[1]), p[0]) for p in pl]
 
-        score_sorted_pl = SortedDict(lambda k: int(k), inverted_pl)
+        score_sorted_pl = sorted(inverted_pl, key=lambda k: int(k[0]))
 
         return [id_sorted_pl, score_sorted_pl]
 
