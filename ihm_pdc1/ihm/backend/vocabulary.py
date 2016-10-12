@@ -6,6 +6,7 @@ from collections import deque, OrderedDict
 
 import psutil
 from sortedcontainers import SortedDict
+import xml.etree.ElementTree as ET
 
 from .preprocessing import tokenize
 
@@ -49,6 +50,7 @@ class Vocabulary:
         self.merged_file = open(filepath, 'r+')
         self.mem_map_file = mmap.mmap(self.merged_file.fileno(), 0)
 
+
     def generate_voc(self):
         """Generate the vocabulary index from the files in doc_dir, and store it in voc dict"""
         py_process = psutil.Process(os.getpid())
@@ -57,13 +59,15 @@ class Vocabulary:
         posting_file = SortedDict()  # temporary structure
 
         for filepath in glob.glob(os.path.join(self.absolute_path, self.doc_dir, 'la*')):
-            doc_id = os.path.basename(filepath)[2:]
 
             with open(filepath, 'r') as f:
-                file_content = f.read()
+                root = ET.fromstring("<root>" + f.read() + "</root>")
+
+            for doc in root:
+                doc_id = doc.find('DOCID').text
 
                 # tokenization
-                tokens = tokenize(file_content)
+                tokens = tokenize("".join(doc.itertext()))
 
                 # stemming
 
@@ -182,9 +186,9 @@ class Vocabulary:
             for filepath in glob.glob(os.path.join(self.absolute_path, self.temp_dir, 'pl_temp_*')):
                 os.remove(filepath)
 
-    def access_pl(self, word):
+    def access_pl(self, word_request):
         """Return the posting list of a word"""
-        word = self.voc_dict.get(word)
+        word = self.voc_dict.get(word_request)
         if word is None:
             return None
         offset = word[1]

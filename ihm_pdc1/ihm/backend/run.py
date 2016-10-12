@@ -47,6 +47,8 @@ def generate_index():
 
 def search_words(query):
     """For django call"""
+
+
     try:
         voc = Vocabulary(None, calculateDocumentScore)
     except:
