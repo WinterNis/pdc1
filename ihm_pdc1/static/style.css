@@ -37,3 +37,9 @@
     width: 100px; /* you can use % */
     height: auto;
 }
+
+.card-result{
+    margin: auto;
+    margin-top: 100px;
+    width: 80vw;
+}

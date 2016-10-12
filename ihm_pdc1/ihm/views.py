@@ -13,6 +13,6 @@ def generate(request):
 def search(request):
     if request.method == 'POST':
         #the called function is making a read to the disk each time, it could be interesting to cache it
-        result = search_words(request.POST.get('search'))
+        results = search_words(request.POST.get('search'))
 
     return render(request, 'search.html', locals())

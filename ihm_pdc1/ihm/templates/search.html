@@ -27,13 +27,12 @@
         </div>
     </form>
 
-    {% if generated %}
-    <p>Index generated</p>
-    {% endif %}
 
-    {% if result %}
-    {{ result }}
-    {% endif %}
+    {% for result in results %}
+    <div class="card-result mdl-card mdl-shadow--2dp">
+        {{ result }}
+    </div>
+    {% endfor %}
 
     <form action="/generate" method="post" name="generate" class="generate">{% csrf_token %}
         <input type="submit" value="Generate index">
