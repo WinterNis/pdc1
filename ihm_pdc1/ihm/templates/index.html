@@ -13,26 +13,19 @@
 <body>
 <section>
 
-    <form action="/search" method="post" class="search_form_search">{% csrf_token %}
-        <img src="{% static 'images/logo.png' %}" alt="gingle logo" class="logo logo_left"/>
 
-        <div class="right search_right">
-            <div class="mdl-textfield mdl-js-textfield">
-                <label class="mdl-textfield__label" for="search">Search...</label>
-                <input class="mdl-textfield__input" type="text" id="search" name="search">
-            </div>
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-                Gingle!
-            </button>
+    <form action="/search" method="post" class="search_form">{% csrf_token %}
+        <img src="{% static 'images/logo.png' %}" alt="gingle logo" class="logo"/>
+        <div class="mdl-textfield mdl-js-textfield">
+            <label class="mdl-textfield__label" for="search">Search...</label>
+            <input class="mdl-textfield__input" type="text" id="search" name="search">
         </div>
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+            Gingle!
+        </button>
     </form>
-
     {% if generated %}
     <p>Index generated</p>
-    {% endif %}
-
-    {% if result %}
-    {{ result }}
     {% endif %}
 
     <form action="/generate" method="post" name="generate" class="generate">{% csrf_token %}

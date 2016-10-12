@@ -8,7 +8,7 @@ def generate(request):
         generate_index()
         generated = True
 
-    return render(request, 'search.html', locals())
+    return render(request, 'index.html', locals())
 
 def search(request):
     if request.method == 'POST':
