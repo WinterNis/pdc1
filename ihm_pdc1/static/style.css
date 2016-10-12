@@ -6,9 +6,40 @@
     z-index:1;
 }
 
+.search_form_search{
+    margin: auto;
+    width: 450px;
+    z-index:1;
+}
+
+.search_right{
+    display: inline-block;
+}
+
+.search_right .mdl-button{
+    display: block;
+    margin: auto;
+}
+
+.logo_left{
+    display: inline-block;
+}
+
+
 .generate{
     width: 300px;
     position: absolute;
     bottom: 10px;
     left: 45vw;
+}
+
+.logo{
+    width: 100px; /* you can use % */
+    height: auto;
+}
+
+.card-result{
+    margin: auto;
+    margin-top: 100px;
+    width: 80vw;
 }

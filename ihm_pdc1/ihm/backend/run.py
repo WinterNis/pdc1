@@ -32,7 +32,7 @@ def run():
         if query == '/quit':
             break
         start_time = timeit.default_timer()
-        result = basic_and_query(voc, preprocessQuery(query))
+        result = basic_and_query(voc, query)
         exec_time = timeit.default_timer() - start_time
         for r in result:
             print(str(r[0]) + ' ' + str(r[1]))
@@ -48,6 +48,7 @@ def generate_index():
 
 def search_words(query):
     """For django call"""
+
     try:
         voc = Vocabulary(None, calculateDocumentScore)
     except:
@@ -68,4 +69,5 @@ def search_words(query):
         result = fagin(voc, list_query, 10, True)
         #result = basic_and_query(voc, list_query)
         print("conjonctive")
+
     return result

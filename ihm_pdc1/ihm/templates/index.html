@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Gingle</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.2.1/material.indigo-pink.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+    <script defer src="https://code.getmdl.io/1.2.1/material.min.js"></script>
+</head>
+<body>
+<section>
+
+
+    <form action="/search" method="post" class="search_form">{% csrf_token %}
+        <img src="{% static 'images/logo.png' %}" alt="gingle logo" class="logo"/>
+        <div class="mdl-textfield mdl-js-textfield">
+            <label class="mdl-textfield__label" for="search">Search...</label>
+            <input class="mdl-textfield__input" type="text" id="search" name="search">
+        </div>
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+            Gingle!
+        </button>
+    </form>
+    {% if generated %}
+    <p>Index generated</p>
+    {% endif %}
+
+    <form action="/generate" method="post" name="generate" class="generate">{% csrf_token %}
+        <input type="submit" value="Generate index">
+    </form>
+</section>
+</body>
+</html>

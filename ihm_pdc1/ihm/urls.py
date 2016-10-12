@@ -3,7 +3,7 @@ from django.conf import settings
 from . import views
 
 urlpatterns = [
-        url(r'^$', views.search),
+        url(r'^$', views.generate),
         url(r'^search$', views.search),
         url(r'^generate$', views.generate),
     ]
