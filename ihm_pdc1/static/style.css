@@ -1,0 +1,14 @@
+.search_form {
+    margin: auto;
+    margin-top: 35vh;
+    width: 300px;
+    text-align: center;
+    z-index:1;
+}
+
+.generate{
+    width: 300px;
+    position: absolute;
+    bottom: 10px;
+    left: 45vw;
+}
