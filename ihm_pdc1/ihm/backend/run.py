@@ -48,11 +48,10 @@ def generate_index():
 def search_words(query):
     """For django call"""
 
-
     try:
         voc = Vocabulary(None, calculateDocumentScore)
     except:
         return "Missing file"
 
-    result = fagin(voc, query, 10, True)
+    result = fagin(voc, query.split(), 10, True)
     return result
