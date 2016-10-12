@@ -22,8 +22,13 @@ def basic_or_query(voc, searchTermsList):
             else:
                 results[docID] = score
 
-    resultsList = sorted(results.keys(), reverse=1) # sort by score
+    #resultsList = sorted(results.keys(), reverse=1) # sort by score
+    resultsList = list()
+    for key in results.keys():
+        resultsList.append([key, results[key]])
 
+    resultsList = sorted(resultsList, key=itemgetter(1), reverse=1)  # sort by score
+    
     return resultsList
 
 def basic_and_query(voc, searchTermsList):

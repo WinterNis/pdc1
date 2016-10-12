@@ -26,21 +26,23 @@ def fagin(voc, search_terms_list, number_of_results_wanted, is_and_query):
             sorted_score_pl_list.append(pls_for_term[1])
 
     # let's go in fagin's awesomeness
-    print(sorted_score_pl_list)
-    results_list = fagin_loop(n, k, last_index_seen, sorted_score_pl_list, sorted_id_pl_list, results_list, is_and_query)
+    results_list = fagin_loop(n, k, last_index_seen, sorted_score_pl_list, sorted_id_pl_list, is_and_query)
 
     results_list = sorted(results_list, key=itemgetter(1), reverse=1)  # sort by score
 
     return results_list
 
 
-def fagin_loop(n, k, last_index_seen, sorted_score_pl_list, sorted_id_pl_list, results_list, is_and_query):
+def fagin_loop(n, k, last_index_seen, sorted_score_pl_list, sorted_id_pl_list, is_and_query):
     """This function is the heart of fagin's algo. It takes a list of results (that can be empty),
     the pl of searched terms, the index of last doc seen in pl, the number of results wanted 'k',
     the length of terms that we are considering in the request 'n'. Parameter "is_and_query" is a
     boolean that indicates if wa want a "and" query, if false it is an "or" query. it returns a new
     list of results"""
-    is_results_list_found = False
+    results_list = list()  # the list of results
+
+    is_results_list_found = False # variabe used to know when we got our final result 
+
     while not is_results_list_found:
 
         i = 0
@@ -49,10 +51,11 @@ def fagin_loop(n, k, last_index_seen, sorted_score_pl_list, sorted_id_pl_list, r
 
         while i < n:  # go through the algo for each term of the research list
 
-            # we will go through each posting list
             doc_id = ""
 
+            # we will go through each posting list
             for pl in sorted_score_pl_list:
+                #first we check if there is something more to see in the pl
                 if last_index_seen < len(pl):
 
                     all_pl_completely_seen = False  # we don't have finished to see all the current pl
@@ -100,7 +103,6 @@ def fagin_loop(n, k, last_index_seen, sorted_score_pl_list, sorted_id_pl_list, r
         if len(results_list) < k and not all_pl_completely_seen:
             last_index_seen = last_index_seen+1
             continue
-            # return fagin_loop(n,k,last_index_seen+1,sorted_score_pl_list,sorted_id_pl_list,results_list,is_and_query)
 
         # we check tau, if there is a doc in results_list that has a lower score than tau, we re iterate,
         # incrementing the last_index seen in order to see the next best score in pl
@@ -109,7 +111,6 @@ def fagin_loop(n, k, last_index_seen, sorted_score_pl_list, sorted_id_pl_list, r
             if min_item[1] < tau:
                 last_index_seen = last_index_seen+1
                 continue
-                # return fagin_loop(n,k,last_index_seen+1,sorted_score_pl_list,sorted_id_pl_list,results_list,is_and_query)
 
         is_results_list_found = True
 
