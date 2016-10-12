@@ -31,7 +31,7 @@ def run():
         if query == '/quit':
             break
         start_time = timeit.default_timer()
-        result = basic_and_query(voc, preprocessQuery(query))
+        result = basic_and_query(voc, query)
         exec_time = timeit.default_timer() - start_time
         for r in result:
             print(str(r[0]) + ' ' + str(r[1]))
@@ -52,5 +52,5 @@ def search_words(query):
     except:
         return "Missing file"
 
-    result = fagin(voc, preprocessQuery(query), 10, True)
+    result = fagin(voc, query, 10, True)
     return result
