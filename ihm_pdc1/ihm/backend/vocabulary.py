@@ -205,7 +205,7 @@ class Vocabulary:
         id_sorted_pl = SortedDict(pl)
         inverted_pl = [(str(p[1]), p[0]) for p in pl]
 
-        score_sorted_pl = sorted(inverted_pl, key=lambda k: int(k[0]))
+        score_sorted_pl = sorted(inverted_pl, key=lambda k: int(k[0]), reverse=True)
 
         return [id_sorted_pl, score_sorted_pl]
 
