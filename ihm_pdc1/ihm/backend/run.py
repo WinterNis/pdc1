@@ -4,6 +4,7 @@ import timeit
 from .vocabulary import Vocabulary
 from .scoring import calculateDocumentScore
 from .query import basic_and_query
+from .query import basic_or_query
 from .fagin import fagin
 from .preprocessing import preprocessQuery
 
@@ -52,5 +53,19 @@ def search_words(query):
     except:
         return "Missing file"
 
-    result = fagin(voc, preprocessQuery(query), 10, True)
+    list_query = preprocessQuery(query)
+
+    #we check if we want a conjonctive or a disjunctive request
+    if "or" in list_query:
+        #we remove key-words before disjunctive request
+        list_query = [word for word in list_query if word not in ["or"]]
+        #we do the disjunctive trick with Fagin or naive algo
+        result = fagin(voc, list_query, 10, False)
+        #result = basic_or_query(voc, list_query)
+        print("disjonctive ficj")
+    else :
+        #we do a conjonctive request and there are no keywords in this case
+        result = fagin(voc, list_query, 10, True)
+        #result = basic_and_query(voc, list_query)
+        print("conjonctive")
     return result
