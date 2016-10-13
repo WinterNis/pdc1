@@ -6,7 +6,7 @@ from .scoring import calculateDocumentScore
 from .query import basic_and_query
 from .query import basic_or_query
 from .fagin import fagin
-from .preprocessing import preprocessQuery
+from .preprocessing import preprocessQuery, find_query_type
 
 
 def run():
@@ -57,17 +57,18 @@ def search_words(query):
     list_query = preprocessQuery(query)
 
     #we check if we want a conjonctive or a disjunctive request
-    if "or" in list_query:
-        #we remove key-words before disjunctive request
-        list_query = [word for word in list_query if word not in ["or"]]
-        #we do the disjunctive trick with Fagin or naive algo
-        result = fagin(voc, list_query, 10, False)
-        #result = basic_or_query(voc, list_query)
-        print("disjonctive ficj")
-    else :
-        #we do a conjonctive request and there are no keywords in this case
+    is_conjonctive_query = find_query_type(query)
+    if is_conjonctive_query:
+        #we do a conjonctive request
         result = fagin(voc, list_query, 10, True)
         #result = basic_and_query(voc, list_query)
         print("conjonctive")
+        print(list_query)  
+    else :
+        #we do the disjunctive trick with Fagin or naive algo
+        result = fagin(voc, list_query, 10, False)
+        #result = basic_or_query(voc, list_query)
+        print("disjonctive")
+        print(list_query)
 
     return result

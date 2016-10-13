@@ -30,3 +30,15 @@ def preprocessQuery(query):
     for i in range(len(tokens)):
         tokens[i] = stem(tokens[i])
     return tokens
+
+# Return true if we find that query is conjonctive or false if it is disjonctive
+# query is just text with words and keywords split by whitespaces
+def find_query_type(query):
+    keyword_disjonctive = "||"
+    keyword_conjonctive = "&&"
+    query_words_list = query.split()#contains words from query in a list
+    if keyword_disjonctive in query_words_list:
+        return False
+    elif keyword_conjonctive in query_words_list:
+        return True 
+    return True # default choice -> if we want conjonctive by default, return true, else return false 
