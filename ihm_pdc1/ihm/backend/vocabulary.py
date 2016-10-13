@@ -9,7 +9,7 @@ from sortedcontainers import SortedDict
 import xml.etree.ElementTree as ET
 
 from .preprocessing import tokenize
-
+from .compression import pl_compress, pl_uncompress
 
 class Vocabulary:
 
@@ -173,6 +173,9 @@ class Vocabulary:
 
             self.voc_dict[min_word] = [len(pl), merged_file.tell()]  # store the offset in the file
 
+            # Compress pl
+            pl = pl_compress(pl)
+
             # Write the pl to the merged file
             for l in pl:
                 merged_file.write(str(l[0]) + ' ' + str(l[1]) + ' ')
@@ -193,7 +196,7 @@ class Vocabulary:
             return None
         offset = word[1]
         self.mem_map_file.seek(offset)
-        line = self.mem_map_file.readline().decode().split()
+        line = self.mem_map_file.readline().split()
 
         pl = list(map(
             lambda x: (
@@ -203,8 +206,7 @@ class Vocabulary:
                     self.docs_token_counts[x[0]],
                     len(line)/2,
                     len(self.docs_token_counts))),
-            list(zip(line[::2], line[1::2]))
-            ))
+            pl_uncompress(list(zip(line[::2], line[1::2])))))
 
         id_sorted_pl = SortedDict(pl)
         inverted_pl = [(str(p[1]), p[0]) for p in pl]
