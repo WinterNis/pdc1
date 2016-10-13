@@ -3,6 +3,8 @@ import glob
 import gc
 import mmap
 from collections import deque, OrderedDict
+from multiprocessing import Process, Manager
+import multiprocessing
 
 import psutil
 from sortedcontainers import SortedDict
@@ -10,10 +12,9 @@ import xml.etree.ElementTree as ET
 
 from .preprocessing import tokenize
 
-
 class Vocabulary:
 
-    def __init__(self, doc_dir, score_function, pl_dir='pl', temp_dir='pl', max_memory_use=0.5, purge_temp=True):
+    def __init__(self, doc_dir, score_function, pl_dir='pl', temp_dir='pl', max_memory_use=0.25, purge_temp=True):
         """Initialize the vocabulary object. If the doc_dir is None, saved voc structure will be
         load from disc"""
 
@@ -29,6 +30,7 @@ class Vocabulary:
         self.voc_dict = {}  # contains the final vocabulary structure
         self.max_memory_use = max_memory_use
         self.purge_temp = purge_temp
+        self.manager = Manager()
 
         if not os.path.exists(os.path.join(self.absolute_path,self.pl_dir)):  # create the pl containing folder
             os.makedirs(os.path.join(self.absolute_path,self.pl_dir))
@@ -42,6 +44,7 @@ class Vocabulary:
 
         self.load_mm_file()
 
+
     def load_mm_file(self):
         filepath = os.path.join(self.absolute_path, 'pl', 'PL_MERGED')
         if not os.path.isfile(filepath):
@@ -50,15 +53,14 @@ class Vocabulary:
         self.merged_file = open(filepath, 'r+')
         self.mem_map_file = mmap.mmap(self.merged_file.fileno(), 0)
 
+    def process_documents(self, docs_token_counts, documentsList):
 
-    def generate_voc(self):
-        """Generate the vocabulary index from the files in doc_dir, and store it in voc dict"""
         py_process = psutil.Process(os.getpid())
 
         # the schema of the posting_file is : word:[postingList]
         posting_file = SortedDict()  # temporary structure
 
-        for filepath in glob.glob(os.path.join(self.absolute_path, self.doc_dir, 'la*')):
+        for filepath in documentsList:
 
             with open(filepath, 'r') as f:
                 root = ET.fromstring("<root>" + f.read() + "</root>")
@@ -66,14 +68,14 @@ class Vocabulary:
             for doc in root:
                 doc_id = doc.find('DOCID').text
 
-                # tokenization
                 tokens = tokenize("".join(doc.itertext()))
 
-                # stemming
-
-                # stop words removal
-
-                self.docs_token_counts[doc_id] = len(tokens)
+                print("process "+str(os.getpid())+" before update : ")
+                print(docs_token_counts)
+                docs_token_counts[doc_id] = len(tokens)
+                print("process "+str(os.getpid())+" after update : ")
+                print(docs_token_counts)
+                print("##################")
 
                 for word in tokens:
 
@@ -97,6 +99,34 @@ class Vocabulary:
                 gc.collect()  # Force the garbage collection of the object
 
         self.flush_pl_to_disk(posting_file)  # flush the remaining pl to the disk
+
+    def generate_voc(self):
+        """Generate the vocabulary index from the files in doc_dir, and store it in voc dict"""
+
+        documentsList = glob.glob(os.path.join(self.absolute_path, self.doc_dir, 'la*'))
+        nbOfDocuments = len(documentsList)
+        nbOfDocumentsPerProcess = int( (nbOfDocuments-nbOfDocuments%4)/4 )
+
+        nbOfCPUs = multiprocessing.cpu_count()
+        processList = []
+
+        docTokenCounts = self.manager.dict()
+
+        for i in range(nbOfCPUs-1):
+            documentsSublist = documentsList[i*nbOfDocumentsPerProcess:(i+1)*nbOfDocumentsPerProcess-1]
+            processList.append( Process(target=self.process_documents, args=(docTokenCounts, documentsSublist)))
+        documentsSublist = documentsList[(nbOfCPUs-1)*nbOfDocumentsPerProcess:nbOfCPUs*nbOfDocumentsPerProcess-1]
+        processList.append( Process(target=self.process_documents, args=(docTokenCounts, documentsSublist)))
+
+        for process in processList:
+            process.start()
+
+        for process in processList:
+            process.join()
+
+
+        self.docs_token_counts = docTokenCounts
+
         self.merge_pl()
 
     def close(self):
