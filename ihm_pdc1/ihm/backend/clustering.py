@@ -2,18 +2,6 @@ import math
 import random
 from sklearn.cluster import KMeans
 
-def k_means(k,similarity_matrix):
-    print("begin")
-
-    #initialization of kmeans
-    centroids = []
-    for i in range(k):
-        centroid_number = random.randint(0,len(similarity_matrix)-1)
-        centroids.append(centroid_number)
-
-    algo_is_finished = False
-
-
 def calculate_cosine_matrix(terms_dict_doc_list):
     #for a given list of document vectors represented by dic where key is term and value is nb occ
     #calculate and return the cosine matrix
