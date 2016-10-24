@@ -1,7 +1,7 @@
 from struct import pack, unpack
 
 
-def vb_compress(number):
+def vb_encode(number):
     bytes = []
     while True:
         bytes.insert(0, number % 128)
@@ -13,7 +13,7 @@ def vb_compress(number):
     return pack('%dB' % len(bytes), *bytes)
 
 
-def vb_decompress(byte_stream):
+def vb_decode(byte_stream):
     n = 0
     numbers = 0
     byte_stream = unpack('%dB' % len(byte_stream), byte_stream)
@@ -25,3 +25,28 @@ def vb_decompress(byte_stream):
             numbers += n
             n = 0
     return numbers
+
+
+def pl_compress(uncompressed_pl):
+    temp = int(uncompressed_pl[0][0])
+    compressed_pl = [[vb_encode(temp), str(uncompressed_pl[0][1]).encode()]]
+    if len(uncompressed_pl) > 1:
+        for l in uncompressed_pl[1:]:
+            docId = int(l[0])
+            score = str(l[1]).encode()
+            compressed_pl.append([vb_encode(docId-temp), score])
+            temp = docId
+
+    return compressed_pl
+
+
+def pl_uncompress(compressed_pl):
+    temp = vb_decode(compressed_pl[0][0])
+    uncompressed_pl = [[str(temp), int(compressed_pl[0][1].decode())]]
+    if len(compressed_pl) > 1:
+        for l in compressed_pl[1::]:
+            reducedDocId = vb_decode(l[0])
+            score = int(l[1].decode())
+            uncompressed_pl.append([str(reducedDocId+temp), score])
+            temp += reducedDocId
+    return uncompressed_pl

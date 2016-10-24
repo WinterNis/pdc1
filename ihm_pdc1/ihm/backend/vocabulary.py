@@ -2,13 +2,14 @@ import os
 import glob
 import gc
 import mmap
-from collections import deque, OrderedDict
+from collections import deque
 
 import psutil
 from sortedcontainers import SortedDict
 import xml.etree.ElementTree as ET
 
 from .preprocessing import tokenize
+from .compression import pl_compress, pl_uncompress
 
 
 class Vocabulary:
@@ -30,10 +31,10 @@ class Vocabulary:
         self.max_memory_use = max_memory_use
         self.purge_temp = purge_temp
 
-        if not os.path.exists(os.path.join(self.absolute_path,self.pl_dir)):  # create the pl containing folder
-            os.makedirs(os.path.join(self.absolute_path,self.pl_dir))
-        if not os.path.exists(os.path.join(self.absolute_path,self.temp_dir)):  # create the temp pl containing folder
-            os.makedirs(os.path.join(self.absolute_path,self.temp_dir))
+        if not os.path.exists(os.path.join(self.absolute_path, self.pl_dir)):  # create the pl containing folder
+            os.makedirs(os.path.join(self.absolute_path, self.pl_dir))
+        if not os.path.exists(os.path.join(self.absolute_path, self.temp_dir)):  # create the temp pl containing folder
+            os.makedirs(os.path.join(self.absolute_path, self.temp_dir))
 
         if self.doc_dir:
             self.generate_voc()
@@ -47,9 +48,8 @@ class Vocabulary:
         if not os.path.isfile(filepath):
             print('Pl file not existing, use index option')
             return
-        self.merged_file = open(filepath, 'r+')
+        self.merged_file = open(filepath, 'rb+')
         self.mem_map_file = mmap.mmap(self.merged_file.fileno(), 0)
-
 
     def generate_voc(self):
         """Generate the vocabulary index from the files in doc_dir, and store it in voc dict"""
@@ -64,7 +64,7 @@ class Vocabulary:
                 root = ET.fromstring("<root>" + f.read() + "</root>")
 
             for doc in root:
-                doc_id = doc.find('DOCID').text
+                doc_id = doc.find('DOCID').text.strip()
 
                 # tokenization
                 tokens = tokenize("".join(doc.itertext()))
@@ -80,7 +80,7 @@ class Vocabulary:
                     # if the word is not in the index already
                     if word not in posting_file:
 
-                        posting_file[word] = SortedDict({doc_id: 1})
+                        posting_file[word] = SortedDict(lambda x: int(x), {doc_id: 1})
 
                     # the word already exists (there is a line in posting_file)
                     else:
@@ -119,7 +119,7 @@ class Vocabulary:
     def merge_pl(self):
         """Merge the temporary pl files to one file"""
         filename = os.path.join(self.absolute_path, self.pl_dir, 'PL_MERGED')
-        merged_file = open(filename, 'w+')
+        merged_file = open(filename, 'wb+')
 
         file_list = []  # contains the file desriptors and the current line splitted
         words = []  # contains the current word for each file
@@ -157,11 +157,11 @@ class Vocabulary:
             # merge the doc_id list
             pl = []  # will contain the current word posting_list
             while doc_id_lists:
-                min_doc_id = min([a[0][0] for a in doc_id_lists])  # find the min doc_id in the lists
-                pl.append([min_doc_id, 0])
+                min_doc_id = min([int(a[0][0]) for a in doc_id_lists])  # find the min doc_id in the lists
+                pl.append([str(min_doc_id), 0])
                 d_index = 0
                 while d_index < len(doc_id_lists):
-                    if doc_id_lists[d_index][0][0] == min_doc_id:  # we look for the first doc_id
+                    if int(doc_id_lists[d_index][0][0]) == min_doc_id:  # we look for the first doc_id
                         pl[-1][1] += int(doc_id_lists[d_index][0][1])  # update the score
                         doc_id_lists[d_index].popleft()  # efficient since it's a deque
                         if not doc_id_lists[d_index]:  # the pl list is empty and can be removed
@@ -174,9 +174,9 @@ class Vocabulary:
             self.voc_dict[min_word] = [len(pl), merged_file.tell()]  # store the offset in the file
 
             # Write the pl to the merged file
-            for l in pl:
-                merged_file.write(str(l[0]) + ' ' + str(l[1]) + ' ')
-            merged_file.write('\n')
+            for l in pl_compress(pl):
+                merged_file.write(l[0] + b' ' + l[1] + b' ')
+            merged_file.write(b'\n')
 
         merged_file.close()
 
@@ -193,7 +193,9 @@ class Vocabulary:
             return None
         offset = word[1]
         self.mem_map_file.seek(offset)
-        line = self.mem_map_file.readline().decode().split()
+        line = self.mem_map_file.readline().split(b'\x20')
+
+        u_pl = pl_uncompress(list(zip(line[::2], line[1::2])))
 
         pl = list(map(
             lambda x: (
@@ -201,14 +203,14 @@ class Vocabulary:
                 self.score_function(
                     int(x[1]),
                     self.docs_token_counts[x[0]],
-                    len(line)/2,
+                    len(u_pl)/2,
                     len(self.docs_token_counts))),
-            list(zip(line[::2], line[1::2]))
+            u_pl
             ))
 
         id_sorted_pl = SortedDict(pl)
-        inverted_pl = [(str(p[1]), p[0]) for p in pl]
 
+        inverted_pl = [(str(p[1]), p[0]) for p in pl]
         score_sorted_pl = sorted(inverted_pl, key=lambda k: int(k[0]), reverse=True)
 
         return [id_sorted_pl, score_sorted_pl]
