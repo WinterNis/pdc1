@@ -48,27 +48,31 @@ def generate_index():
 
 def search_words(query):
     """For django call"""
-
     try:
         voc = Vocabulary(None, calculateDocumentScore)
     except:
         return "Missing file"
 
     list_query = preprocessQuery(query)
+    result = []
 
-    #we check if we want a conjonctive or a disjunctive request
+    # we check if we want a conjonctive or a disjunctive request
     is_conjonctive_query = find_query_type(query)
     if is_conjonctive_query:
-        #we do a conjonctive request
+        # we do a conjonctive request
         result = fagin(voc, list_query, 10, True)
-        #result = basic_and_query(voc, list_query)
+        # result = basic_and_query(voc, list_query)
         print("conjonctive")
-        print(list_query)  
-    else :
-        #we do the disjunctive trick with Fagin or naive algo
+        print(list_query)
+    else:
+        # we do the disjunctive trick with Fagin or naive algo
         result = fagin(voc, list_query, 10, False)
-        #result = basic_or_query(voc, list_query)
+        # result = basic_or_query(voc, list_query)
         print("disjonctive")
         print(list_query)
 
-    return result
+    ret = []
+    for r in result:
+        ret.append([r[0], r[1], voc.document_registry.access_doc(r[0])])
+
+    return ret

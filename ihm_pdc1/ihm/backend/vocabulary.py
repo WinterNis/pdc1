@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 
 from .preprocessing import tokenize
 from .compression import pl_compress, pl_uncompress
+from .document import DocumentRegistry
 
 
 class Vocabulary:
@@ -20,16 +21,16 @@ class Vocabulary:
 
         self.absolute_path = os.path.dirname(os.path.realpath(__file__))
         self.doc_dir = doc_dir  # Directory containing the la* files
-        self.pl_dir = pl_dir  # default directory for the temp files storage
-        self.temp_dir = temp_dir
+        self.pl_dir = pl_dir
+        self.temp_dir = temp_dir  # default directory for the temp files storage
         self.pl_files_count = 0  # count for temp file identification
         self.merged_file = None
         self.mem_map_file = None
         self.score_function = score_function
-        self.docs_token_counts = {}  # contains the number of tokens per doc
         self.voc_dict = {}  # contains the final vocabulary structure
         self.max_memory_use = max_memory_use
         self.purge_temp = purge_temp
+        self.document_registry = DocumentRegistry(self.pl_dir)
 
         if not os.path.exists(os.path.join(self.absolute_path, self.pl_dir)):  # create the pl containing folder
             os.makedirs(os.path.join(self.absolute_path, self.pl_dir))
@@ -67,13 +68,14 @@ class Vocabulary:
                 doc_id = doc.find('DOCID').text.strip()
 
                 # tokenization
-                tokens = tokenize("".join(doc.itertext()))
+                doc_text = "".join(doc.itertext())
+                tokens = tokenize(doc_text)
 
                 # stemming
 
                 # stop words removal
 
-                self.docs_token_counts[doc_id] = len(tokens)
+                self.document_registry.add_doc(doc_id, doc_text, len(tokens))
 
                 for word in tokens:
 
@@ -91,7 +93,7 @@ class Vocabulary:
                             word_pl[doc_id] = 1
 
             memory_use = py_process.memory_info()[0]/2.**30  # memory use in GB
-            if memory_use > self.max_memory_use:  # if memory usage exceed 500 mo
+            if memory_use > self.max_memory_use:  # if memory usage exceed the limit
                 self.flush_pl_to_disk(posting_file)
                 posting_file = SortedDict()
                 gc.collect()  # Force the garbage collection of the object
@@ -202,9 +204,9 @@ class Vocabulary:
                 x[0],
                 self.score_function(
                     int(x[1]),
-                    self.docs_token_counts[x[0]],
+                    self.document_registry.access_token_count(x[0]),
                     len(u_pl)/2,
-                    len(self.docs_token_counts))),
+                    self.document_registry.doc_count())),
             u_pl
             ))
 
@@ -224,12 +226,6 @@ class Vocabulary:
             for key, value in self.voc_dict.items():
                 f.write(key + ' ' + str(value[0]) + ' ' + str(value[1]) + '\n')
 
-        # Doc token counts
-        filename = os.path.join(self.absolute_path, self.pl_dir, 'doc_token_counts')
-        with open(filename, 'w+') as f:
-            for key, value in self.docs_token_counts.items():
-                f.write(key + ' ' + str(value) + '\n')
-
     def load_voc_from_disk(self):
         """Load a saved voc struture from disc"""
         filename = os.path.join(self.absolute_path, self.pl_dir, 'voc_index')
@@ -241,14 +237,3 @@ class Vocabulary:
             for line in f:
                 l = line.split()
                 self.voc_dict[l[0]] = [int(l[1]), int(l[2])]
-
-        # Doc token counts
-        filename = os.path.join(self.absolute_path, self.pl_dir, 'doc_token_counts')
-
-        if not os.path.isfile(filename):
-            print('Document token counts file not existing, use index option')
-
-        with open(filename, 'r') as f:
-            for line in f:
-                l = line.split()
-                self.docs_token_counts[l[0]] = int(l[1])
