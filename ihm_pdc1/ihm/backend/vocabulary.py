@@ -237,3 +237,13 @@ class Vocabulary:
             for line in f:
                 l = line.split()
                 self.voc_dict[l[0]] = [int(l[1]), int(l[2])]
+
+    def clustering(self):
+        ret = {}
+        for word in self.voc_dict.keys():
+            pl = self.access_pl(word)[0]
+            for doc_id, score in pl.items():
+                if doc_id not in ret:
+                    ret[doc_id] = {}
+                ret[doc_id][word] = score
+        return ret
