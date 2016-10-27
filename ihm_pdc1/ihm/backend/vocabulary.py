@@ -238,7 +238,7 @@ class Vocabulary:
                 l = line.split()
                 self.voc_dict[l[0]] = [int(l[1]), int(l[2])]
 
-    def clustering(self):
+    def get_terms_dicts_for_docs(self):
         ret = {}
         for word in self.voc_dict.keys():
             pl = self.access_pl(word)[0]
