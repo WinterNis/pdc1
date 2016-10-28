@@ -117,7 +117,7 @@ def clustering_process_for_best_results_query(voc, query_results_list, number_of
 #                          'number_of_clusters_wanted' for the number of clusters to create
 #                          'number_of_describing_words' for the number of words for describing a cluster
 # this method will create clusters and for each cluster see the best words that describe the cluster
-# it returns a dict where key is the number of cluster and value is a list that contains doc_id, and an other dict where key is the number of cluster and value is a list taht contains describing words
+# it returns a dict where value is the number of cluster and key is doc_id, and an other dict where key is the number of cluster and value is a list taht contains describing words
     
     #first we get the dict for all docs where key is docId and value is an other dict where key is term and value is score
     terms_dicts_for_docs_dic = voc.get_terms_dicts_for_docs()
@@ -141,7 +141,7 @@ def clustering_process_for_best_results_query(voc, query_results_list, number_of
     #we create a dictionary where key is the number of cluster and value is a list of words that describes this cluster
     describing_words_clusters_lists_dict = dict()
 
-    # we create a dict where key is the number of the cluster and value is a list that contains the doc_ids
+    # we create a dict where value is the number of the cluster and key is the doc_id
     doc_id_clusters_dict = dict()
 
     #then we go through each cluster in order to see which words best describe them
@@ -150,17 +150,18 @@ def clustering_process_for_best_results_query(voc, query_results_list, number_of
         print("cluster ",i," : ")
         i +=1
 
-        doc_id_clusters_dict[i] = id_cluster
+        
 
         dict_cluster_list = list()
 
-        for doc_id in id_cluster:
-            print(doc_id)
-            dict_cluster_list.append(fagin_result_doc_list[doc_id])
+        for index_doc_id in id_cluster:
+            print(index_doc_id)
+            doc_id_clusters_dict[query_results_list[index_doc_id][0]] = i
+            dict_cluster_list.append(fagin_result_doc_list[index_doc_id])
 
         description = get_description_of_cluster(dict_cluster_list,number_of_keys_to_considered)
 
-        describing_words_clusters_lists[i] = description
+        describing_words_clusters_lists_dict[i] = description
 
         for j in range(number_of_describing_words):
             print(description[j])
@@ -221,7 +222,7 @@ def test():
     
     #print(calculate_cosine_between_docs(dico1,dico2))
 
-test()
+#test()
 
 
 

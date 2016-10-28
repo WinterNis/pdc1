@@ -41,12 +41,15 @@ def pl_compress(uncompressed_pl):
 
 
 def pl_uncompress(compressed_pl):
-    temp = vb_decode(compressed_pl[0][0])
-    uncompressed_pl = [[str(temp), int(compressed_pl[0][1].decode())]]
-    if len(compressed_pl) > 1:
-        for l in compressed_pl[1::]:
-            reducedDocId = vb_decode(l[0])
-            score = int(l[1].decode())
-            uncompressed_pl.append([str(reducedDocId+temp), score])
-            temp += reducedDocId
-    return uncompressed_pl
+	try:
+	    temp = vb_decode(compressed_pl[0][0])
+	    uncompressed_pl = [[str(temp), int(compressed_pl[0][1].decode())]]
+	    if len(compressed_pl) > 1:
+	        for l in compressed_pl[1::]:
+	            reducedDocId = vb_decode(l[0])
+	            score = int(l[1].decode())
+	            uncompressed_pl.append([str(reducedDocId+temp), score])
+	            temp += reducedDocId
+	    return uncompressed_pl
+	except:
+		return list()
