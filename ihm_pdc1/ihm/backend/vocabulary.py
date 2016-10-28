@@ -15,7 +15,7 @@ from .document import DocumentRegistry
 
 class Vocabulary:
 
-    def __init__(self, doc_dir, score_function, pl_dir='pl', temp_dir='pl', max_memory_use=0.5, purge_temp=True):
+    def __init__(self, doc_dir, score_function, pl_dir='pl', temp_dir='pl', max_memory_use=1, purge_temp=True):
         """Initialize the vocabulary object. If the doc_dir is None, saved voc structure will be
         load from disc"""
 
@@ -108,15 +108,16 @@ class Vocabulary:
 
     def flush_pl_to_disk(self, posting_file):
         """Write the posting_list as a temporary file"""
-        filename = os.path.join(self.absolute_path, self.temp_dir, 'pl_temp_' + str(self.pl_files_count))
+        if len(posting_file) != 0:
+            filename = os.path.join(self.absolute_path, self.temp_dir, 'pl_temp_' + str(self.pl_files_count))
 
-        with open(filename, 'w+') as f:
-            for word, pl in posting_file.items():
-                f.write(word)
-                for doc_id, score in pl.items():
-                    f.write(' ' + doc_id + ' ' + str(score))
-                f.write('\n')
-        self.pl_files_count += 1
+            with open(filename, 'w+') as f:
+                for word, pl in posting_file.items():
+                    f.write(word)
+                    for doc_id, score in pl.items():
+                        f.write(' ' + doc_id + ' ' + str(score))
+                    f.write('\n')
+            self.pl_files_count += 1
 
     def merge_pl(self):
         """Merge the temporary pl files to one file"""
