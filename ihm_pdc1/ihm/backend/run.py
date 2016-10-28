@@ -43,7 +43,10 @@ def run():
 
 def generate_index():
     """For django call"""
+    start_time = timeit.default_timer()
     voc = Vocabulary('latimes', calculateDocumentScore)
+    index_time = timeit.default_timer() - start_time
+    print('Indexation took ' + str(index_time) + ' seconds')
 
 
 def search_words(query):
