@@ -174,12 +174,12 @@ class Vocabulary:
                     else:
                         d_index += 1
 
-            self.voc_dict[min_word] = [len(pl), merged_file.tell()]  # store the offset in the file
-
+            write_offset = merged_file.tell()
             # Write the pl to the merged file
             for l in pl_compress(pl):
-                merged_file.write(l[0] + b' ' + l[1] + b' ')
-            merged_file.write(b'\n')
+                merged_file.write(l[0] + b'\u0130' + l[1] + b'\u0130')
+            write_size = merged_file.tell() - write_offset
+            self.voc_dict[min_word] = [write_offset, write_size]  # store the offset in the file
 
         merged_file.close()
 
@@ -194,9 +194,9 @@ class Vocabulary:
         word = self.voc_dict.get(word_request)
         if word is None:
             return None
-        offset = word[1]
+        offset, size = word[0], word[1]
         self.mem_map_file.seek(offset)
-        line = self.mem_map_file.readline().split(b'\x20')
+        line = self.mem_map_file.read(size).split(b'\u0130')
 
         u_pl = pl_uncompress(list(zip(line[::2], line[1::2])))
 

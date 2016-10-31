@@ -74,13 +74,13 @@ def search_words(query):
         print("disjonctive")
         print(list_query)
 
-    doc_id_clusters_dict,describing_words_clusters_lists_dict = clustering_process_for_best_results_query(voc, result, number_of_keys_to_considered=3, number_of_clusters_wanted=3, number_of_describing_words=3)
+    doc_id_clusters_dict, describing_words_clusters_lists_dict = clustering_process_for_best_results_query(voc, result, number_of_keys_to_considered=3, number_of_clusters_wanted=3, number_of_describing_words=3)
 
     ret = []
     for r in result:
         cluster_number_for_r = doc_id_clusters_dict[r[0]]
         describing_words_list = describing_words_clusters_lists_dict[cluster_number_for_r]
-        ret.append([r[0], r[1], voc.document_registry.access_doc(r[0]),"\nCLUSTERING : \n",cluster_number_for_r,describing_words_list])
-        #ret.append([r[0], r[1], voc.document_registry.access_doc(r[0])])
+        ret.append([r[0], r[1], voc.document_registry.access_doc(r[0]), "\nCLUSTERING : \n", cluster_number_for_r, describing_words_list])
+        #  ret.append([r[0], r[1], voc.document_registry.access_doc(r[0])])
 
     return ret
