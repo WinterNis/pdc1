@@ -168,7 +168,7 @@ def clustering_process_for_best_results_query(voc, query_results_list, number_of
 
         describing_words_clusters_lists_dict[i] = description[0:number_of_describing_words]
 
-        for j in range(number_of_describing_words):
+        for j in range(len(describing_words_clusters_lists_dict[i])):
             print(description[j])
 
         print("____________________________")
