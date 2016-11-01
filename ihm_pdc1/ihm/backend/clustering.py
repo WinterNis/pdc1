@@ -65,11 +65,16 @@ def calculate_cosine_between_docs(terms_dict_doc_1,terms_dict_doc_2):
     return dot_product
     
 #return k lists representing k clusters with list containing the index of docs in the similarity_matrix
-#k must be lower than length of matrix, or we return an empty list
+#k must be lower than length of matrix, or we return a list where all doc belongs to the same cluster
 def get_k_clusters_from_matrix(k,similarity_matrix):
     #k must be lower than length of matrix
     if k>len(similarity_matrix):
-        return list()
+        j=0
+        res = list()
+        for j in range(len(similarity_matrix)):
+            res.append(j)
+            j += 1
+        return [res]
 
     num_clusters = k
 
@@ -161,7 +166,7 @@ def clustering_process_for_best_results_query(voc, query_results_list, number_of
 
         description = get_description_of_cluster(dict_cluster_list,number_of_keys_to_considered)
 
-        describing_words_clusters_lists_dict[i] = description
+        describing_words_clusters_lists_dict[i] = description[0:number_of_describing_words]
 
         for j in range(number_of_describing_words):
             print(description[j])
