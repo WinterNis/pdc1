@@ -2,6 +2,7 @@ import os
 import glob
 import gc
 import mmap
+import json
 from collections import deque
 
 import psutil
@@ -15,7 +16,7 @@ from .document import DocumentRegistry
 
 class Vocabulary:
 
-    def __init__(self, doc_dir, score_function, pl_dir='pl', temp_dir='pl', max_memory_use=1, purge_temp=True):
+    def __init__(self, doc_dir, score_function, pl_dir='pl', temp_dir='pl', max_memory_use=2, purge_temp=True):
         """Initialize the vocabulary object. If the doc_dir is None, saved voc structure will be
         load from disc"""
 
@@ -28,6 +29,7 @@ class Vocabulary:
         self.mem_map_file = None
         self.score_function = score_function
         self.voc_dict = {}  # contains the final vocabulary structure
+        self.terms_dicts_for_docs = {}
         self.max_memory_use = max_memory_use
         self.purge_temp = purge_temp
         self.document_registry = DocumentRegistry(self.pl_dir)
@@ -43,6 +45,7 @@ class Vocabulary:
             self.load_voc_from_disk()
 
         self.load_mm_file()
+        self.get_terms_dicts_for_docs()
 
     def load_mm_file(self):
         filepath = os.path.join(self.absolute_path, 'pl', 'PL_MERGED')
@@ -239,7 +242,41 @@ class Vocabulary:
                 l = line.split()
                 self.voc_dict[l[0]] = [int(l[1]), int(l[2])]
 
+    def read_dict_from_file(self):
+        filename = os.path.join(self.absolute_path, self.pl_dir, 'terms_dicts_for_docs_dict.json')
+
+        # load from file:
+        with open(filename, 'r') as f:
+            try:
+                data = json.load(f)
+            # if the file is empty the ValueError will be thrown
+            except ValueError:
+                data = {}
+        return data
+
+    def write_dict_to_file(self,dico):
+        filename = os.path.join(self.absolute_path, self.pl_dir, 'terms_dicts_for_docs_dict.json')
+
+        # save to file:
+        with open(filename, 'w+') as f:
+            json.dump(dico, f)
+
     def get_terms_dicts_for_docs(self):
+
+        if len(self.terms_dicts_for_docs) !=0:
+            print("here1")
+            return self.terms_dicts_for_docs
+
+        filename = os.path.join(self.absolute_path, self.pl_dir, 'terms_dicts_for_docs_dict.json')
+
+        if not os.path.isfile(filename):
+            print('terms_dicts_for_docs_dict file not existing')
+        else :
+            print("here2")
+            self.terms_dicts_for_docs = self.read_dict_from_file()
+            return self.terms_dicts_for_docs
+        
+        print("there")
         ret = {}
         for word in self.voc_dict.keys():
             pl = self.access_pl(word)[0]
@@ -247,4 +284,11 @@ class Vocabulary:
                 if doc_id not in ret:
                     ret[doc_id] = {}
                 ret[doc_id][word] = score
+
+        self.terms_dicts_for_docs = ret
+
+        self.write_dict_to_file(ret)
+
         return ret
+
+    
