@@ -43,3 +43,17 @@
     margin-top: 100px;
     width: 80vw;
 }
+
+.search_result{
+    padding: 8px;
+}
+
+.left-part-result{
+    display: inline-block;
+    width: 75%;
+}
+
+.right-part-result{
+    display: inline-block;
+    width: 15%;
+}

@@ -29,26 +29,28 @@
 
 
     {% for result in results %}
-    <div class="card-result mdl-card mdl-shadow--2dp">
-        {{ result.0 }}
-		{{ result.1 }}
-		{{ result.2 }}
-		
-		<span class="mdl-chip">
-			<span class="mdl-chip__text">{{ result.4 }}</span>
-		</span>
-		
-		{% for word in result.5 %}
-			<span class="mdl-chip">
-				<span class="mdl-chip__text">{{ word }}</span>
-			</span>
-		{% endfor %}
+    <div class="card-result mdl-card mdl-shadow--2dp search_result">
+        <div class="search_result">
+            <div class="left-part-result">
+                {{ result.0 }}
+        		{{ result.1 }}
+        		{{ result.2 }}
+            </div>
+            <div class="right-part-result">
+        		<span class="mdl-chip">
+        			<span class="mdl-chip__text">{{ result.4 }}</span>
+        		</span>
+
+        		{% for word in result.5 %}
+        			<span class="mdl-chip">
+        				<span class="mdl-chip__text">{{ word }}</span>
+        			</span>
+        		{% endfor %}
+            </div>
+        </div>
     </div>
     {% endfor %}
 
-    <form action="/generate" method="post" name="generate" class="generate">{% csrf_token %}
-        <input type="submit" value="Generate index">
-    </form>
 </section>
 </body>
 </html>
