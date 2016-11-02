@@ -27,8 +27,6 @@ def removeStopWords(tokens):
 def preprocessQuery(query):
     tokens = tokenize(query)
     removeStopWords(tokens)
-    for i in range(len(tokens)):
-        tokens[i] = stem(tokens[i])
     return tokens
 
 # Return true if we find that query is conjonctive or false if it is disjonctive
