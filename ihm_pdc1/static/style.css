@@ -50,10 +50,26 @@
 
 .left-part-result{
     display: inline-block;
-    width: 75%;
+    width: 80%;
 }
 
 .right-part-result{
     display: inline-block;
-    width: 15%;
+    width: 12%;
+}
+
+.block{
+    display: block;
+}
+
+.cluster1{
+    background: rgb(104, 242, 99);
+}
+
+.cluster2{
+    background: rgb(239, 88, 88);
+}
+
+.cluster3{
+    background: rgb(102, 202, 244);
 }

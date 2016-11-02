@@ -37,12 +37,12 @@
         		{{ result.2 }}
             </div>
             <div class="right-part-result">
-        		<span class="mdl-chip">
+        		<span class="mdl-chip cluster{{ result.4 }}">
         			<span class="mdl-chip__text">{{ result.4 }}</span>
         		</span>
 
         		{% for word in result.5 %}
-        			<span class="mdl-chip">
+        			<span class="mdl-chip block">
         				<span class="mdl-chip__text">{{ word }}</span>
         			</span>
         		{% endfor %}
