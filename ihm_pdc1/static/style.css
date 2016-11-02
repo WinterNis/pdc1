@@ -50,16 +50,18 @@
 
 .left-part-result{
     display: inline-block;
-    width: 80%;
+    width: 85%;
 }
 
 .right-part-result{
     display: inline-block;
+    text-align: center;
+    vertical-align: top;
     width: 12%;
 }
 
 .block{
-    display: block;
+    display: inline-block;
 }
 
 .cluster1{
