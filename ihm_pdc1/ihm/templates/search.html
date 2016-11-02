@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,6 +11,23 @@
 
     <script defer src="https://code.getmdl.io/1.2.1/material.min.js"></script>
 </head>
+<!-- include jQuery library -->
+<script type="text/javascript" src='http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js'></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('.full_text_div').hide();
+
+    $('button.full_text_show_button').click(function(e) {
+      var button = $(e.target);
+      button.hide();
+      var id = button.attr('id');
+      var associated_snippet_div = $('div.snippet_div#'+id);
+      associated_snippet_div.hide();
+      var associated_full_text_div = $('div.full_text_div#'+id);
+      associated_full_text_div.show();
+    });
+  });
+</script>
 <body>
 <section>
 
@@ -30,22 +48,29 @@
 
     {% for result in results %}
     <div class="card-result mdl-card mdl-shadow--2dp search_result">
-        <div class="search_result">
-            <div class="left-part-result">
-        		{{ result.2 }}
-            </div>
-            <div class="right-part-result">
-        		<span class="mdl-chip cluster{{ result.4 }}">
-        			<span class="mdl-chip__text">{{ result.4 }}</span>
-        		</span>
+     <div class="search_result">
+    {% autoescape off %}
+		<div id="result_{{ forloop.counter }}" class="snippet_div mdl-shadow--4dp">{{ result.2|truncatewords:130 }}</div>
+    <button id="result_{{ forloop.counter }}" class="full_text_show_button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+      ...
+    </button>
+    <div id="result_{{ forloop.counter }}" class="full_text_div left-part-result">{{ result.2 }}</div>
 
-        		{% for word in result.5 %}
-        			<span class="mdl-chip block">
-        				<span class="mdl-chip__text">{{ word }}</span>
-        			</span>
-        		{% endfor %}
-            </div>
-        </div>
+    {% endautoescape %}
+
+	<div class="right-part-result">
+
+		<span class="mdl-chip cluster{{ result.4 }}">
+			<span class="mdl-chip__text">{{ result.4 }}</span>
+		</span>
+
+		{% for word in result.5 %}
+			<span class="mdl-chip">
+				<span class="mdl-chip__text">{{ word }}</span>
+			</span>
+		{% endfor %}
+</div>
+      </div>
     </div>
     {% endfor %}
 
