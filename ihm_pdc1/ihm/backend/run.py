@@ -51,11 +51,9 @@ def generate_index():
 
 def search_words(query):
     """For django call"""
-    try:
-        voc = Vocabulary(None, calculateDocumentScore)
-    except:
-        return "Missing file"
+    voc = Vocabulary(None, calculateDocumentScore)
 
+    start_time = timeit.default_timer()
     list_query = preprocessQuery(query)
     result = []
 
@@ -74,15 +72,24 @@ def search_words(query):
         print("disjonctive")
         print(list_query)
 
+    index_time = timeit.default_timer() - start_time
+    print('Query took ' + str(index_time) + ' seconds')
+    
+    start_time = timeit.default_timer()
     doc_id_clusters_dict, describing_words_clusters_lists_dict = clustering_process_for_best_results_query(voc, result, number_of_keys_to_considered=3, number_of_clusters_wanted=3, number_of_describing_words=3)
-
+    index_time = timeit.default_timer() - start_time
+    print('Clustering took ' + str(index_time) + ' seconds')
 
     ret = []
     for r in result:
 
         cluster_number_for_r = doc_id_clusters_dict[r[0]]
         describing_words_list = describing_words_clusters_lists_dict[cluster_number_for_r]
+
+        start_time = timeit.default_timer()
         ret.append([r[0], r[1], voc.document_registry.access_doc(r[0]), "\nCLUSTERING : \n", cluster_number_for_r, describing_words_list])
+        index_time = timeit.default_timer() - start_time
+        print('Appending took ' + str(index_time) + ' seconds')
         #  ret.append([r[0], r[1], voc.document_registry.access_doc(r[0])])
 
     return ret

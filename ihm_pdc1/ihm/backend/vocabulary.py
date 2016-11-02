@@ -13,6 +13,8 @@ from .preprocessing import tokenize
 from .compression import pl_compress, pl_uncompress
 from .document import DocumentRegistry
 
+cache_voc_dict = None
+cache_clustering = None
 
 class Vocabulary:
 
@@ -45,7 +47,6 @@ class Vocabulary:
             self.load_voc_from_disk()
 
         self.load_mm_file()
-        self.get_terms_dicts_for_docs()
 
     def load_mm_file(self):
         filepath = os.path.join(self.absolute_path, 'pl', 'PL_MERGED')
@@ -103,6 +104,7 @@ class Vocabulary:
 
         self.flush_pl_to_disk(posting_file)  # flush the remaining pl to the disk
         self.merge_pl()
+        self.get_terms_dicts_for_docs()
 
     def close(self):
         """Correctly close the pl file"""
@@ -232,15 +234,21 @@ class Vocabulary:
 
     def load_voc_from_disk(self):
         """Load a saved voc struture from disc"""
-        filename = os.path.join(self.absolute_path, self.pl_dir, 'voc_index')
+        global cache_voc_dict
+        if cache_voc_dict:
+            self.voc_dict = cache_voc_dict
+        else:
+            filename = os.path.join(self.absolute_path, self.pl_dir, 'voc_index')
 
-        if not os.path.isfile(filename):
-            print('Voc file not existing, use index option')
-            return
-        with open(filename, 'r') as f:
-            for line in f:
-                l = line.split()
-                self.voc_dict[l[0]] = [int(l[1]), int(l[2])]
+            if not os.path.isfile(filename):
+                print('Voc file not existing, use index option')
+                return
+            with open(filename, 'r') as f:
+                for line in f:
+                    l = line.split()
+                    self.voc_dict[l[0]] = [int(l[1]), int(l[2])]
+            cache_voc_dict = self.voc_dict
+
 
     def read_dict_from_file(self):
         filename = os.path.join(self.absolute_path, self.pl_dir, 'terms_dicts_for_docs_dict.json')
@@ -271,9 +279,16 @@ class Vocabulary:
 
         if not os.path.isfile(filename):
             print('terms_dicts_for_docs_dict file not existing')
-        else :
-            print("here2")
-            self.terms_dicts_for_docs = self.read_dict_from_file()
+        else:
+            global cache_clustering
+            if not cache_clustering:
+                print('Reading clustering dict from file...')
+                cache_clustering = self.read_dict_from_file()
+            else:
+                print('Reading clustering dict from global...')
+                
+            self.terms_dicts_for_docs = cache_clustering
+            print('Clustering dict loaded')
             return self.terms_dicts_for_docs
         
         print("there")
@@ -290,5 +305,3 @@ class Vocabulary:
         self.write_dict_to_file(ret)
 
         return ret
-
-    
