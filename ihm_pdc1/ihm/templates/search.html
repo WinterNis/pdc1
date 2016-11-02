@@ -14,66 +14,68 @@
 <!-- include jQuery library -->
 <script type="text/javascript" src='http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js'></script>
 <script type="text/javascript">
-  $(document).ready(function() {
+$(document).ready(function() {
     $('.full_text_div').hide();
 
     $('button.full_text_show_button').click(function(e) {
-      var button = $(e.target);
-      button.hide();
-      var id = button.attr('id');
-      var associated_snippet_div = $('div.snippet_div#'+id);
-      associated_snippet_div.hide();
-      var associated_full_text_div = $('div.full_text_div#'+id);
-      associated_full_text_div.show();
+        var button = $(e.target);
+        button.hide();
+        var id = button.attr('id');
+        var associated_snippet_div = $('div.snippet_div#'+id);
+        associated_snippet_div.hide();
+        var associated_full_text_div = $('div.full_text_div#'+id);
+        associated_full_text_div.show();
     });
-  });
+});
 </script>
 <body>
-<section>
+    <section>
 
-    <form action="/search" method="post" class="search_form_search">{% csrf_token %}
-        <img src="{% static 'images/logo.png' %}" alt="gingle logo" class="logo logo_left"/>
+        <form action="/search" method="post" class="search_form_search">{% csrf_token %}
+            <img src="{% static 'images/logo.png' %}" alt="gingle logo" class="logo logo_left"/>
 
-        <div class="right search_right">
-            <div class="mdl-textfield mdl-js-textfield">
-                <label class="mdl-textfield__label" for="search">Search...</label>
-                <input class="mdl-textfield__input" type="text" id="search" name="search">
+            <div class="right search_right">
+                <div class="mdl-textfield mdl-js-textfield">
+                    <label class="mdl-textfield__label" for="search">Search...</label>
+                    <input class="mdl-textfield__input" type="text" id="search" name="search">
+                </div>
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+                    Gingle!
+                </button>
             </div>
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-                Gingle!
-            </button>
+        </form>
+
+
+        {% for result in results %}
+        <div class="card-result mdl-card mdl-shadow--2dp search_result">
+            <div class="search_result">
+                {% autoescape off %}
+                <div class="left-part-result">
+                    <div id="result_{{ forloop.counter }}" class="snippet_div">{{ result.6 }}...</div>
+                    <button id="result_{{ forloop.counter }}" class="full_text_show_button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                        ...
+                    </button>
+                    <div id="result_{{ forloop.counter }}" class="full_text_div">{{ result.2 }}</div>
+                </div>
+
+                {% endautoescape %}
+
+                <div class="right-part-result">
+
+                    <span class="mdl-chip cluster{{ result.4 }}">
+                        <span class="mdl-chip__text">{{ result.4 }}</span>
+                    </span>
+
+                    {% for word in result.5 %}
+                    <span class="mdl-chip">
+                        <span class="mdl-chip__text">{{ word }}</span>
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
-    </form>
+        {% endfor %}
 
-
-    {% for result in results %}
-    <div class="card-result mdl-card mdl-shadow--2dp search_result">
-     <div class="search_result">
-    {% autoescape off %}
-		<div id="result_{{ forloop.counter }}" class="snippet_div mdl-shadow--4dp">{{ result.2|truncatewords:130 }}</div>
-    <button id="result_{{ forloop.counter }}" class="full_text_show_button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-      ...
-    </button>
-    <div id="result_{{ forloop.counter }}" class="full_text_div left-part-result">{{ result.2 }}</div>
-
-    {% endautoescape %}
-
-	<div class="right-part-result">
-
-		<span class="mdl-chip cluster{{ result.4 }}">
-			<span class="mdl-chip__text">{{ result.4 }}</span>
-		</span>
-
-		{% for word in result.5 %}
-			<span class="mdl-chip">
-				<span class="mdl-chip__text">{{ word }}</span>
-			</span>
-		{% endfor %}
-</div>
-      </div>
-    </div>
-    {% endfor %}
-
-</section>
+    </section>
 </body>
 </html>

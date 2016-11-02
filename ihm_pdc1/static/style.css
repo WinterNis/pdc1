@@ -75,3 +75,12 @@
 .cluster3{
     background: rgb(102, 202, 244);
 }
+
+.request_word{
+    font-weight: bold;
+    color: orange;
+}
+
+.cluster_word{
+    color: rgb(66, 161, 244);
+}

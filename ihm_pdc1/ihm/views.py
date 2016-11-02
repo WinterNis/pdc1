@@ -19,7 +19,16 @@ def search(request):
         results = search_words(request.POST.get('search'))
 
         for result in results:
+            result.append(result[2][:1000])
             for word in request.POST.get('search').split(' '):
-                result[2] = result[2].replace(word, "<span class=\'highlight_word\'>"+word+"</span>")
+                result[2] = result[2].replace(' '+word+' ', " <span class=\'request_word\'>"+word+"</span> ")
+
+
+            for word in result[5]:
+                result[2] = result[2].replace(' '+word+' ', " <span class=\'cluster_word\'>"+word+"</span> ")
+
+
+
+
 
     return render(request, 'search.html', locals())
