@@ -74,7 +74,7 @@ def search_words(query):
 
     index_time = timeit.default_timer() - start_time
     print('Query took ' + str(index_time) + ' seconds')
-    
+
     start_time = timeit.default_timer()
     doc_id_clusters_dict, describing_words_clusters_lists_dict = clustering_process_for_best_results_query(voc, result, number_of_keys_to_considered=3, number_of_clusters_wanted=3, number_of_describing_words=3)
     index_time = timeit.default_timer() - start_time

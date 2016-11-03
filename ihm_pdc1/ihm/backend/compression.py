@@ -15,38 +15,40 @@ def vb_encode(number):
 
 def vb_decode(byte_stream):
     n = 0
-    numbers = 0
-    byte_stream = unpack('%dB' % len(byte_stream), byte_stream)
-    for byte in byte_stream:
+    number = 0
+    b_s = unpack('%dB' % len(byte_stream), byte_stream)
+    counter = 0
+    for byte in b_s:
+        counter = counter + 1
         if byte < 128:
             n = 128 * n + byte
         else:
             n = 128 * n + (byte - 128)
-            numbers += n
-            n = 0
-    return numbers
+            number = n
+            break
+    byte_stream = byte_stream[counter:]
+    return number, byte_stream
 
 
 def pl_compress(uncompressed_pl):
     temp = int(uncompressed_pl[0][0])
-    compressed_pl = [[vb_encode(temp), str(uncompressed_pl[0][1]).encode()]]
+    compressed_pl = vb_encode(temp) + vb_encode(uncompressed_pl[0][1])
     if len(uncompressed_pl) > 1:
         for l in uncompressed_pl[1:]:
             docId = int(l[0])
-            score = str(l[1]).encode()
-            compressed_pl.append([vb_encode(docId-temp), score])
+            score = l[1]
+            compressed_pl += vb_encode(docId-temp) + vb_encode(score)
             temp = docId
-
     return compressed_pl
 
 
 def pl_uncompress(compressed_pl):
-    temp = vb_decode(compressed_pl[0][0])
-    uncompressed_pl = [[str(temp), int(compressed_pl[0][1].decode())]]
-    if len(compressed_pl) > 1:
-        for l in compressed_pl[1::]:
-            reducedDocId = vb_decode(l[0])
-            score = int(l[1].decode())
-            uncompressed_pl.append([str(reducedDocId+temp), score])
-            temp += reducedDocId
+    temp, compressed_pl = vb_decode(compressed_pl)
+    score, compressed_pl = vb_decode(compressed_pl)
+    uncompressed_pl = [[str(temp), int(score)]]
+    while len(compressed_pl) > 1:
+        reducedDocId, compressed_pl = vb_decode(compressed_pl)
+        score, compressed_pl = vb_decode(compressed_pl)
+        uncompressed_pl.append([str(reducedDocId+temp), score])
+        temp += reducedDocId
     return uncompressed_pl

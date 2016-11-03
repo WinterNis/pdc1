@@ -43,10 +43,11 @@ class Vocabulary:
 
         if self.doc_dir:
             self.generate_voc()
+            self.load_mm_file()
+            self.get_terms_dicts_for_docs()
         else:
             self.load_voc_from_disk()
-
-        self.load_mm_file()
+            self.load_mm_file()
 
     def load_mm_file(self):
         filepath = os.path.join(self.absolute_path, 'pl', 'PL_MERGED')
@@ -104,7 +105,6 @@ class Vocabulary:
 
         self.flush_pl_to_disk(posting_file)  # flush the remaining pl to the disk
         self.merge_pl()
-        self.get_terms_dicts_for_docs()
 
     def close(self):
         """Correctly close the pl file"""
@@ -181,8 +181,7 @@ class Vocabulary:
 
             write_offset = merged_file.tell()
             # Write the pl to the merged file
-            for l in pl_compress(pl):
-                merged_file.write(l[0] + b'\u0130' + l[1] + b'\u0130')
+            merged_file.write(pl_compress(pl))
             write_size = merged_file.tell() - write_offset
             self.voc_dict[min_word] = [write_offset, write_size]  # store the offset in the file
 
@@ -201,9 +200,9 @@ class Vocabulary:
             return None
         offset, size = word[0], word[1]
         self.mem_map_file.seek(offset)
-        line = self.mem_map_file.read(size).split(b'\u0130')
+        line = self.mem_map_file.read(size)
 
-        u_pl = pl_uncompress(list(zip(line[::2], line[1::2])))
+        u_pl = pl_uncompress(line)
 
         pl = list(map(
             lambda x: (
@@ -286,19 +285,21 @@ class Vocabulary:
                 cache_clustering = self.read_dict_from_file()
             else:
                 print('Reading clustering dict from global...')
-                
+
             self.terms_dicts_for_docs = cache_clustering
             print('Clustering dict loaded')
             return self.terms_dicts_for_docs
-        
+
         print("there")
         ret = {}
+
         for word in self.voc_dict.keys():
             pl = self.access_pl(word)[0]
             for doc_id, score in pl.items():
                 if doc_id not in ret:
                     ret[doc_id] = {}
                 ret[doc_id][word] = score
+        print('salut')
 
         self.terms_dicts_for_docs = ret
 
