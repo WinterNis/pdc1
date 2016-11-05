@@ -181,20 +181,16 @@ class Vocabulary:
                             d_index += 1
                     else:
                         d_index += 1
-            if min_word == '1':
-                import pdb; pdb.set_trace()
-            print('pl_start ' + min_word)
+
             write_offset = merged_file.tell()
             # Write the pl to the merged file
-            merged_file.write(pl_compress(pl))
+            for p in pl:
+                merged_file.write(p[0].encode() + b' ' + str(p[1]).encode() + b' ')
             write_size = merged_file.tell() - write_offset
             self.voc_dict[min_word] = [write_offset, write_size]  # store the offset in the file
-            print('pl_end')
 
         merged_file.close()
-        print('yolo1')
         self.write_voc_to_disk()
-        print('yolo2')
 
         if self.purge_temp:
             for filepath in glob.glob(os.path.join(self.absolute_path, self.temp_dir, 'pl_temp_*')):
@@ -207,9 +203,9 @@ class Vocabulary:
             return None
         offset, size = word[0], word[1]
         self.mem_map_file.seek(offset)
-        line = self.mem_map_file.read(size)
+        line = self.mem_map_file.read(size).decode().split(' ')
 
-        u_pl = pl_uncompress(line)
+        u_pl = list(zip(line[::2], map(int, (line[1::2]))))
 
         pl = list(map(
             lambda x: (
@@ -278,7 +274,6 @@ class Vocabulary:
     def get_terms_dicts_for_docs(self):
 
         if len(self.terms_dicts_for_docs) !=0:
-            print("here1")
             return self.terms_dicts_for_docs
 
         filename = os.path.join(self.absolute_path, self.pl_dir, 'terms_dicts_for_docs_dict.json')
@@ -297,18 +292,15 @@ class Vocabulary:
             print('Clustering dict loaded')
             return self.terms_dicts_for_docs
 
-        print("there")
         ret = {}
 
         for word in self.voc_dict.keys():
             if not word.isdigit():
-                print(word)
                 pl = self.access_pl(word)[0]
                 for doc_id, score in pl.items():
                     if doc_id not in ret:
                         ret[doc_id] = {}
                     ret[doc_id][word] = score
-        print('salut')
 
         self.terms_dicts_for_docs = ret
 
