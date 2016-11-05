@@ -9,7 +9,7 @@ import psutil
 from sortedcontainers import SortedDict
 import xml.etree.ElementTree as ET
 
-from .preprocessing import tokenize
+from .preprocessing import tokenize, removeStopWords
 from .compression import pl_compress, pl_uncompress
 from .document import DocumentRegistry
 
@@ -44,7 +44,7 @@ class Vocabulary:
         if self.doc_dir:
             self.generate_voc()
             self.load_mm_file()
-            self.get_terms_dicts_for_docs()
+            #self.get_terms_dicts_for_docs()
         else:
             self.load_voc_from_disk()
             self.load_mm_file()
@@ -79,6 +79,7 @@ class Vocabulary:
                 # stemming
 
                 # stop words removal
+                tokens = removeStopWords(tokens)
 
                 self.document_registry.add_doc(doc_id, doc_text, len(tokens))
 
@@ -104,6 +105,8 @@ class Vocabulary:
                 gc.collect()  # Force the garbage collection of the object
 
         self.flush_pl_to_disk(posting_file)  # flush the remaining pl to the disk
+        posting_file = None
+        gc.collect()
         self.merge_pl()
 
     def close(self):
@@ -178,16 +181,20 @@ class Vocabulary:
                             d_index += 1
                     else:
                         d_index += 1
-
+            if min_word == '1':
+                import pdb; pdb.set_trace()
+            print('pl_start ' + min_word)
             write_offset = merged_file.tell()
             # Write the pl to the merged file
             merged_file.write(pl_compress(pl))
             write_size = merged_file.tell() - write_offset
             self.voc_dict[min_word] = [write_offset, write_size]  # store the offset in the file
+            print('pl_end')
 
         merged_file.close()
-
+        print('yolo1')
         self.write_voc_to_disk()
+        print('yolo2')
 
         if self.purge_temp:
             for filepath in glob.glob(os.path.join(self.absolute_path, self.temp_dir, 'pl_temp_*')):
@@ -294,11 +301,13 @@ class Vocabulary:
         ret = {}
 
         for word in self.voc_dict.keys():
-            pl = self.access_pl(word)[0]
-            for doc_id, score in pl.items():
-                if doc_id not in ret:
-                    ret[doc_id] = {}
-                ret[doc_id][word] = score
+            if not word.isdigit():
+                print(word)
+                pl = self.access_pl(word)[0]
+                for doc_id, score in pl.items():
+                    if doc_id not in ret:
+                        ret[doc_id] = {}
+                    ret[doc_id][word] = score
         print('salut')
 
         self.terms_dicts_for_docs = ret

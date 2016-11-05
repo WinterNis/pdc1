@@ -7,6 +7,8 @@ from nltk.stem.porter import *
 # Preprocessing functions
 #########################
 
+stop_word_set = set(stopwords.words('english'))
+
 # Breaks the given text up into a list of words (tokens)
 def tokenize(text):
     text = text.lower().translate(str.maketrans("", "", string.punctuation))
@@ -20,7 +22,7 @@ def stem(word):
 
 # Removes stop words from a list of tokens
 def removeStopWords(tokens):
-    filtered_words = [word for word in tokens if word not in stopwords.words('english')]
+    filtered_words = [word for word in tokens if word not in stop_word_set]
     return filtered_words
 
 # Applies preprocessing to query and returns list of tokens
@@ -38,5 +40,5 @@ def find_query_type(query):
     if keyword_disjonctive in query_words_list:
         return False
     elif keyword_conjonctive in query_words_list:
-        return True 
-    return True # default choice -> if we want conjonctive by default, return true, else return false 
+        return True
+    return True # default choice -> if we want conjonctive by default, return true, else return false
